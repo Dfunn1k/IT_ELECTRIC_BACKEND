@@ -5,6 +5,10 @@ from django.db import models
 class Usuario(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
+    def __str__(self):
+        pass
+
+
 
 class Motor(models.Model):
     motor_key = models.AutoField(primary_key=True)
@@ -15,7 +19,6 @@ class Motor(models.Model):
 class Test(models.Model):
     test_key = models.AutoField(primary_key=True)
     motor_nro = models.ForeignKey(Motor, on_delete=models.CASCADE)
-
 
 class Medicion(models.Model):
     medicion_key = models.AutoField(primary_key=True)
