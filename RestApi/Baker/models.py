@@ -10,6 +10,7 @@ class Motor(models.Model):
 
 class Test(models.Model):
     test_key = models.AutoField(primary_key=True)
+    test_type = models.CharField(max_length=100, default='arranque')
     motor_nro = models.ForeignKey(Motor, on_delete=models.CASCADE)
 
 class Medicion(models.Model):
