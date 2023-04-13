@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from .models import Usuario, Motor, Test, Medicion
-from .serializers import MotorSerializer, TestSerializer, MedicionSerializer, UsuarioSerializer
+from .models import Motor, Test, Medicion
+from .serializers import MotorSerializer, TestSerializer, MedicionSerializer, UserSerializer 
 from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.views import APIView
 
@@ -17,3 +17,7 @@ class UserList(ListAPIView):
 class MotorCreateView(CreateAPIView):
     queryset = Motor.objects.all()
     serializer_class = MotorSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(usuario=self.request.user)
+        print(f"self.request.user: {self.request.user}")

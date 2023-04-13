@@ -1,4 +1,7 @@
 from pathlib import Path
+from dotenv import load_dotenv, find_dotenv
+from os import getenv
+load_dotenv(find_dotenv())
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,6 +32,7 @@ DJANGO_APPS = (
 
 THIRD_APPS = (
     'rest_framework',
+    'rest_framework.authtoken',
 )
 
 LOCAL_APPS = (
@@ -75,11 +79,11 @@ WSGI_APPLICATION = 'RestApi.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'It_electric',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '' 
+        'NAME': getenv("INT_MYSQL_DB"),
+        'USER': getenv("INT_MYSQL_USER"),
+        'PASSWORD': getenv("INT_MYSQL_PASSWORD"),
+        'HOST': getenv("INT_MYSQL_HOST"),
+        'PORT': ''
     }
 }
 
@@ -124,3 +128,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+}

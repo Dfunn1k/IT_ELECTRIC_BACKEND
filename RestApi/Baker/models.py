@@ -2,19 +2,11 @@ from django.contrib.auth.models import User
 from django.db import models
 
 
-class Usuario(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-    def __str__(self):
-        pass
-
-
 
 class Motor(models.Model):
     motor_key = models.AutoField(primary_key=True)
     model = models.CharField(max_length=100)
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class Test(models.Model):
     test_key = models.AutoField(primary_key=True)
