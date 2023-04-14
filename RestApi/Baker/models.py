@@ -1,3 +1,4 @@
+import uuid
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -6,6 +7,7 @@ from django.db import models
 class Motor(models.Model):
     motor_key = models.AutoField(primary_key=True)
     modelo = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True, default=uuid.uuid4)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class Test(models.Model):

@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 class MotorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Motor
-        fields = ('motor_key', 'modelo')
+        fields = ('motor_key', 'modelo', 'name')
 
 class TestSerializer(serializers.ModelSerializer):
     class Meta:
