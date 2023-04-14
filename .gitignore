@@ -1,4 +1,4 @@
 .pyc
-*/*__pycache__/
-*/*/*__pycache__/
+migrations/
+__pycache__/
 .env
