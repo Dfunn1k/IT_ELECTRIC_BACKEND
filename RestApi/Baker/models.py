@@ -5,7 +5,7 @@ from django.db import models
 
 class Motor(models.Model):
     motor_key = models.AutoField(primary_key=True)
-    model = models.CharField(max_length=100)
+    modelo = models.CharField(max_length=100)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class Test(models.Model):
