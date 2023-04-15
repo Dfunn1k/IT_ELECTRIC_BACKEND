@@ -11,7 +11,7 @@ class MotorSerializer(serializers.ModelSerializer):
 class TestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Test
-        fields = ('test_key', 'motor_nro')
+        fields = ('test_key', 'motor_nro', 'test_type')
 
 class MedicionSerializer(serializers.ModelSerializer):
     class Meta:
