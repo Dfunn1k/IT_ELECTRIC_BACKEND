@@ -47,5 +47,5 @@ class Medicion(models.Model):
     i2_freq = models.FloatField()
     i3_freq = models.FloatField()
 
-    # class Meta:
-    #     unique_together = ('test_key', 'item')
+    class Meta:
+        unique_together = ('test_key', 'item')
