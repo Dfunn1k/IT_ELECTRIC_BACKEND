@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import UserList, MotorCreateView, TestCreateView
+from .views import UserList, MotorCreateView, TestCreateView, MedicionUploadView
 from rest_framework.authtoken import views
 
 
@@ -8,5 +8,6 @@ urlpatterns = [
     path('api/usuarios/', UserList.as_view(), name='user-list'),
     path('api/create_motor/', MotorCreateView.as_view(), name='create-motor'),
     path('api/create_test/', TestCreateView.as_view(), name='create_test'),
+    path('api/mediciones/upload/', MedicionUploadView.as_view(), name='create_medicion'),
     path('api/token/', views.obtain_auth_token),
 ]
