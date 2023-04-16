@@ -30,7 +30,7 @@ class UserList(ListAPIView):
 
 class MedicionUploadView(APIView):
     permission_classes = [IsAuthenticated]
-    parser_classes = [FileUploadParser]
+    parser_classes = [MultiPartParser]
 
     def post(self, request, *args, **kwargs):
         if "file" not in request.data:
@@ -40,6 +40,9 @@ class MedicionUploadView(APIView):
             )
 
         file = request.data["file"]
+        print("request.data: ", request.data)
+        test_key = request.data.get("test_key")
+        print("test_key: ", test_key)
 
         # Leer el archivo de Excel y obtener las mediciones
         df = pd.read_excel(file, engine="odf", sheet_name="data")
@@ -48,11 +51,11 @@ class MedicionUploadView(APIView):
         mediciones_data = []
         for index, row in df.iterrows():
             # Buscar o crear el objeto Engine
-            test_object, _ = Test.objects.get_or_create(test_key=2)
+            # test_object, _ = Test.objects.get_or_create(test_key=2)
 
             # Crear el objeto Reading y agregarlo a la lista de mediciones
             medicion_data = {
-                "test_key": 2,
+                "test_key": test_key,
                 "item": row["item"],
                 "time": row["time"],
                 "mag_v1": row["MagV1"],
