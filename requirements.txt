@@ -3,6 +3,7 @@ autopep8==2.0.2
 backports.zoneinfo==0.2.1
 defusedxml==0.7.1
 Django==4.2
+django-cors-headers==3.14.0
 djangorestframework==3.14.0
 et-xmlfile==1.1.0
 mysqlclient==2.1.1

@@ -1,6 +1,8 @@
-from pathlib import Path
-from dotenv import load_dotenv, find_dotenv
 from os import getenv
+from pathlib import Path
+
+from dotenv import find_dotenv, load_dotenv
+
 load_dotenv(find_dotenv())
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -33,6 +35,7 @@ DJANGO_APPS = (
 THIRD_APPS = (
     'rest_framework',
     'rest_framework.authtoken',
+    'corsheaders',
 )
 
 LOCAL_APPS = (
@@ -50,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'RestApi.urls'
@@ -134,3 +138,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ]
 }
+
+
+CORS_ALLOWED_ORIGINS = ['http://localhost:4200']

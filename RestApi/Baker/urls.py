@@ -13,5 +13,5 @@ urlpatterns = [
     path('api/user/<int:user_pk>/motors/', UserMotorsView.as_view(), name='user_motors'),
     path('api/medicionesRE/upload/', MedicionREUploadView.as_view(), name='create_medicion_re'),
     path('api/medicionesTA/upload/', MedicionTAUploadView.as_view(), name='create_medicion_ta'),
-    path('api/testmedicionesRE/<int:test_re_key>/', TestREMedicionesView.as_view(), name='get_medicion_re'),
+    path('api/testmedicionesRE/<int:test_re_nro>/', TestREMedicionesView.as_view(), name='get_medicion_re'),
 ]
