@@ -1,26 +1,26 @@
+from datetime import datetime
+
+import pandas as pd
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.shortcuts import render
-from .models import Motor, Test, Medicion
-from .serializers import (
-    MotorSerializer,
-    TestSerializer,
-    MedicionSerializer,
-    UserSerializer,
-)
-from rest_framework.generics import ListAPIView, CreateAPIView
+from django.utils import timezone
+from openpyxl import load_workbook
+from rest_framework import generics, status
+from rest_framework.generics import CreateAPIView, ListAPIView
+# excel
+from rest_framework.parsers import (FileUploadParser, FormParser, JSONParser,
+                                    MultiPartParser)
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from django.contrib.auth.models import User
-from .serializers import UserSerializer
-from rest_framework import generics
-from rest_framework.response import Response
-
-# excel
-from rest_framework.parsers import FileUploadParser
-from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework import status
-from rest_framework.parsers import JSONParser
-from rest_framework.permissions import IsAuthenticated
-import pandas as pd
+from .models import (MedicionRE, MedicionTA, Motor, ResultadoElectrico, TestRE,
+                     TestTA, TransitorioArranque)
+from .serializers import (MedicionRESerializer, MedicionTASerializer,
+                          MotorSerializer, ResultadoElectricoSerializer,
+                          TestRESerializer, TestTASerializer,
+                          TransitorioArranqueSerializer, UserSerializer)
 
 
 class UserList(ListAPIView):
@@ -28,34 +28,83 @@ class UserList(ListAPIView):
     serializer_class = UserSerializer
 
 
-class MedicionUploadView(APIView):
+class MotorCreateView(APIView):
+    def post(self, request, format=None):
+        # Utilizar el JSONParser para procesar los datos en formato JSON
+        parser = JSONParser()
+        data = parser.parse(request)
+
+        serializer = MotorSerializer(data=data)
+        if serializer.is_valid():
+            # Obtener o crear el motor según su número nombre
+            try:
+                motor = Motor.objects.get(name=data["name"],
+                                          usuario=request.user)
+                response_data = MotorSerializer(motor).data
+            except (Motor.DoesNotExist, KeyError):
+                # motor = serializer.save(usuario=request.user)
+                response_data = serializer.save(usuario=request.user)
+
+            # Crear una instancia del serializador para devolver los datos del
+            # motor
+            # response_serializer = MotorSerializer(motor)
+            # response_data = response_serializer.data
+
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class UserMotorsView(APIView):
+    def get(self, request, user_pk):
+        motors = Motor.objects.filter(usuario__pk=user_pk)
+        serializer = MotorSerializer(motors, many=True)
+        return Response(serializer.data)
+
+class TestREMedicionesView(APIView):
+    def get(self, request, test_re_nro):
+        mediciones = MedicionRE.objects.filter(test_re_nro=test_re_nro)
+        serializer = MedicionRESerializer(mediciones, many=True)
+        return Response(serializer.data)
+
+class MedicionREUploadView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
 
     def post(self, request, *args, **kwargs):
         if "file" not in request.data:
             return Response(
-                {"error": "No file provided"},
+                {"error": "No file R.E. provided"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         file = request.data["file"]
-        print("request.data: ", request.data)
-        test_key = request.data.get("test_key")
-        print("test_key: ", test_key)
+        wb = load_workbook(file)
+        res_elec_nro = request.data.get("res_elec_nro")
+        resultado_electrico = ResultadoElectrico.objects.get(pk=res_elec_nro)
 
         # Leer el archivo de Excel y obtener las mediciones
-        df = pd.read_excel(file, engine="odf", sheet_name="data")
+        df = pd.read_excel(file)
+
+        sheet_name = wb.sheetnames[0].rsplit("-", 2)
+        sheet_name = ":".join(sheet_name)
+        test_date_time = datetime.strptime(sheet_name, "%Y-%m-%dT%H:%M:%S")
+        test_date_time = timezone.make_aware(test_date_time)
+        
+        try:
+            test_re = TestRE.objects.create(
+                res_elec_nro=resultado_electrico,
+                test_date_time=test_date_time
+            )
+        except ValidationError as e:
+            return Response({'error': e}, status=400)
+
+        test_re_pk = test_re.pk
 
         # Iterar sobre las filas del DataFrame
         mediciones_data = []
         for index, row in df.iterrows():
-            # Buscar o crear el objeto Engine
-            # test_object, _ = Test.objects.get_or_create(test_key=2)
-
             # Crear el objeto Reading y agregarlo a la lista de mediciones
             medicion_data = {
-                "test_key": test_key,
+                "test_re_nro": test_re_pk,
                 "item": row["item"],
                 "time": row["time"],
                 "mag_v1": row["MagV1"],
@@ -80,80 +129,120 @@ class MedicionUploadView(APIView):
             mediciones_data.append(medicion_data)
 
         # Serializar y guardar las mediciones
-        mediciones_serializer = MedicionSerializer(data=mediciones_data,
-                                                   many=True)
+        mediciones_serializer = MedicionRESerializer(data=mediciones_data,
+                                                     many=True)
         mediciones_serializer.is_valid(raise_exception=True)
         mediciones_serializer.save()
 
         return Response(
-            {"message": "Las mediciones han sido creadas exitosamente"},
+            {"message": "Las mediciones R.E. han sido creadas exitosamente"},
             status=status.HTTP_201_CREATED,
         )
 
 
-class TestCreateView(APIView):
+class MedicionTAUploadView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser]
 
-    def post(self, request, format=None):
-        parser = JSONParser()
-        data = parser.parse(request)
+    def post(self, request, *args, **kwargs):
+        if "file" not in request.data:
+            return Response(
+                {"error": "No file T.A. provided"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        serializer = TestSerializer(data=data)
+        file = request.data["file"]
+        wb = load_workbook(file)
+        trans_arran_nro = request.data.get("trans_arran_nro")
+        transitorio_arranque = TransitorioArranque.objects.get(
+            pk=trans_arran_nro)
 
-        # Si el serializador es válido, se procesa la información
-        if serializer.is_valid():
-            # Se obtiene el objeto motor y su llave primaria
-            motor_obj = serializer.validated_data["motor_nro"]
-            motor_nro = motor_obj.motor_key
+        # Leer el archivo de Excel y obtener las mediciones
+        df = pd.read_excel(file)
 
-            # Se obtiene el tipo de prueba o se establece por defecto
-            test_type = serializer.validated_data.get("test_type")
+        sheet_name = wb.sheetnames[0].rsplit("-", 2)
+        sheet_name = ":".join(sheet_name)
+        test_date_time = datetime.strptime(sheet_name, "%Y-%m-%dT%H:%M:%S")
+        test_date_time = timezone.make_aware(test_date_time)
 
-            try:
-                # Se busca el motor y se verifica que pertenezca al usuario
-                # actual
-                motor = Motor.objects.get(motor_key=motor_nro,
-                                          usuario=request.user)
-            except Motor.DoesNotExist:
-                # Si el motor no existe o no está registrado al usuario actual,
-                # se retorna un error 404
-                return Response(
-                    {
-                        "error": f"Motor with ID {motor_nro} does not exist \
-                            or is not registered to the current user"
-                    },
-                    status=status.HTTP_404_NOT_FOUND,
-                )
+        try:
+            test_ta = TestTA.objects.create(
+                trans_arran_nro=transitorio_arranque,
+                test_date_time=test_date_time
+            )
+        except ValidationError as e:
+            return Response({'error': e}, status=400)
 
-            # Se crea el objeto de prueba y se obtiene su llave primaria
-            test = Test.objects.create(motor_nro=motor, test_type=test_type)
-            response_data = {"test_id": test.test_key}
-            return Response(response_data, status=status.HTTP_201_CREATED)
+        test_ta_pk = test_ta.pk
 
-        # Si el serializador no es válido, se retorna un error 400 con los
-        # errores de validación
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Iterar sobre las filas del DataFrame
+        mediciones_data = []
+        for index, row in df.iterrows():
+            # Crear el objeto Reading y agregarlo a la lista de mediciones
+            medicion_data = {
+                "test_ta_nro": test_ta_pk,
+                "item": row["item"],
+                "time": row["time"],
+                "v1": row["v1"],
+                "v2": row["v2"],
+                "v3": row["v3"],
+                "i1": row["i1"],
+                "i2": row["i2"],
+                "i3": row["i3"],
+            }
+            mediciones_data.append(medicion_data)
+
+        # Serializar y guardar las mediciones
+        mediciones_serializer = MedicionTASerializer(data=mediciones_data,
+                                                     many=True)
+        mediciones_serializer.is_valid(raise_exception=True)
+        mediciones_serializer.save()
+
+        return Response(
+            {"message": "Las mediciones T.A. han sido creadas exitosamente"},
+            status=status.HTTP_201_CREATED,
+        )
 
 
-class MotorCreateView(APIView):
-    def post(self, request, format=None):
-        # Utilizar el JSONParser para procesar los datos en formato JSON
-        parser = JSONParser()
-        data = parser.parse(request)
+# class ResultadoElectricoCreateView(APIView):
+#     permission_classes = [IsAuthenticated]
 
-        serializer = MotorSerializer(data=data)
-        if serializer.is_valid():
-            # Obtener o crear el motor según su número nombre
-            try:
-                motor = Motor.objects.get(name=data["name"],
-                                          usuario=request.user)
-            except (Motor.DoesNotExist, KeyError):
-                motor = serializer.save(usuario=request.user)
+#     def post(self, request, format=None):
+#         parser = JSONParser()
+#         data = parser.parse(request)
 
-            # Crear una instancia del serializador para devolver los datos del
-            # motor
-            response_serializer = MotorSerializer(motor)
-            response_data = response_serializer.data
+#         serializer = ResultadoElectricoSerializer(data=data)
 
-            return Response(response_data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#         # Si el serializador es válido, se procesa la información
+#         if serializer.is_valid():
+#             # Se obtiene el objeto motor y su llave primaria
+#             motor_obj = serializer.validated_data["motor_nro"]
+#             motor_nro = motor_obj.motor_key
+
+#             # Se obtiene el tipo de prueba o se establece por defecto
+#             #test_type = serializer.validated_data.get("test_type")
+
+#             try:
+#                 # Se busca el motor y se verifica que pertenezca al usuario
+#                 # actual
+#                 motor = Motor.objects.get(motor_key=motor_nro,
+#                                           usuario=request.user)
+#             except Motor.DoesNotExist:
+#                 # Si el motor no existe o no está registrado al usuario actual,
+#                 # se retorna un error 404
+#                 return Response(
+#                     {
+#                         "error": f"Motor with ID {motor_nro} does not exist \
+#                             or is not registered to the current user"
+#                     },
+#                     status=status.HTTP_404_NOT_FOUND,
+#                 )
+
+#             # Se crea el objeto de prueba y se obtiene su llave primaria
+#             test = ResultadoElectrico.objects.create(motor_nro=motor)
+#             response_data = {"test_id": test.test_key}
+#             return Response(response_data, status=status.HTTP_201_CREATED)
+
+#         # Si el serializador no es válido, se retorna un error 400 con los
+#         # errores de validación
+# return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

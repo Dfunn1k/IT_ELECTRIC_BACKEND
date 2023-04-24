@@ -4,9 +4,11 @@ backports.zoneinfo==0.2.1
 defusedxml==0.7.1
 Django==4.2
 djangorestframework==3.14.0
+et-xmlfile==1.1.0
 mysqlclient==2.1.1
 numpy==1.24.2
 odfpy==1.4.1
+openpyxl==3.1.2
 pandas==2.0.0
 pycodestyle==2.10.0
 python-dateutil==2.8.2
