@@ -7,6 +7,8 @@ from django.shortcuts import render
 from django.utils import timezone
 from openpyxl import load_workbook
 from rest_framework import generics, status
+from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.generics import CreateAPIView, ListAPIView
 # excel
 from rest_framework.parsers import (FileUploadParser, FormParser, JSONParser,
@@ -26,6 +28,26 @@ from .serializers import (MedicionRESerializer, MedicionTASerializer,
 class UserList(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+class LoginView(APIView):
+    def post(self, request):
+        # Verifica las credenciales del usuario
+        serializer = AuthTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+
+        # Crea o recupera el token del usuario
+        token, created = Token.objects.get_or_create(user=user)
+
+        # Devuelve el token y el ID del usuario en la respuesta
+        return Response({'token': token.key, 'user_id': user.id})
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        # Elimina el token del usuario
+        Token.objects.filter(user=request.user).delete()
+        return Response({'El token fue eliminado'},status=204)
 
 
 class MotorCreateView(APIView):

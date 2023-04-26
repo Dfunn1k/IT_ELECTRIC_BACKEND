@@ -1,14 +1,15 @@
 from django.urls import path
 from rest_framework.authtoken import views
 
-from .views import (MedicionREUploadView, MedicionTAUploadView,
-                    MotorCreateView, TestREMedicionesView, UserList,
-                    UserMotorsView)
+from .views import (LoginView, LogoutView, MedicionREUploadView,
+                    MedicionTAUploadView, MotorCreateView,
+                    TestREMedicionesView, UserList, UserMotorsView)
 
 app_name = 'app'
 urlpatterns = [
     path('api/usuarios/', UserList.as_view(), name='user-list'),
-    path('api/token/', views.obtain_auth_token),
+    path('api/login/', LoginView.as_view(), name='login'),
+    path('api/logout/', LogoutView.as_view(), name='logout'),
     path('api/create_motor/', MotorCreateView.as_view(), name='create_motor'),
     path('api/user/<int:user_pk>/motors/', UserMotorsView.as_view(), name='user_motors'),
     path('api/medicionesRE/upload/', MedicionREUploadView.as_view(), name='create_medicion_re'),
