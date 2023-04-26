@@ -47,7 +47,7 @@ class LogoutView(APIView):
     def post(self, request):
         # Elimina el token del usuario
         Token.objects.filter(user=request.user).delete()
-        return Response({'El token fue eliminado'},status=204)
+        return Response({'detail': 'El token fue eliminado'},status=204)
 
 
 class MotorCreateView(APIView):
