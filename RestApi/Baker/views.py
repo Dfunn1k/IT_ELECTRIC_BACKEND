@@ -84,8 +84,19 @@ class UserMotorsView(APIView):
 class TestREMedicionesView(APIView):
     def get(self, request, test_re_nro):
         mediciones = MedicionRE.objects.filter(test_re_nro=test_re_nro)
-        serializer = MedicionRESerializer(mediciones, many=True)
-        return Response(serializer.data)
+        data = {
+            #'item': list(mediciones.values_list('item', flat=True)),
+            'time': list(mediciones.values_list('time', flat=True)),
+            'mag_v1': list(mediciones.values_list('mag_v1', flat=True)),
+            'mag_v2': list(mediciones.values_list('mag_v2', flat=True)),
+            'mag_v3': list(mediciones.values_list('mag_v3', flat=True)),
+            'mag_i1': list(mediciones.values_list('mag_i1', flat=True)),
+            'mag_i2': list(mediciones.values_list('mag_i2', flat=True)),
+            'mag_i3': list(mediciones.values_list('mag_i3', flat=True))
+        }
+        return Response(data)
+        #serializer = MedicionRESerializer(mediciones, many=True)
+        #return Response(serializer.data)
 
 class MedicionREUploadView(APIView):
     permission_classes = [IsAuthenticated]

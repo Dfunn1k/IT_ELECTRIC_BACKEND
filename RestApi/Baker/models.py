@@ -1,5 +1,3 @@
-import uuid
-
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -7,8 +5,23 @@ from django.db import models
 
 class Motor(models.Model):
     motor_key = models.AutoField(primary_key=True)
-    modelo = models.CharField(max_length=100)
-    name = models.CharField(max_length=100, unique=True, default=uuid.uuid4)
+    #no deber ser unique -> 2 usuarios pueden crear un motod llamado "motor A", to do✅
+    name = models.CharField(max_length=100, unique=True)
+    #model = models.CharField(max_length=100)
+    power_out_hp = models.FloatField()
+    power_out_kw = models.FloatField()
+    voltage_rating = models.FloatField()
+    speed_rpm = models.FloatField()
+    amps_rating = models.FloatField()
+    off_level = models.FloatField()
+    frame = models.FloatField()
+    insulation_class = models.FloatField()
+    locked_rotor_current = models.FloatField()
+    locked_rotor_code = models.FloatField()
+    freq_hz = models.FloatField()
+
+
+
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
@@ -109,3 +122,4 @@ class MedicionTA(models.Model):
 
     class Meta:
         unique_together = ('test_ta_nro', 'item')
+

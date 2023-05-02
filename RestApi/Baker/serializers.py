@@ -42,7 +42,22 @@ class MotorSerializer(serializers.ModelSerializer):
     transitorio_arranque = TransitorioArranqueSerializer(many=True, read_only=True, source='transitorioarranque_set')
     class Meta:
         model = Motor
-        fields = ("motor_key", "modelo", "name", "resultado_electrico", "transitorio_arranque")
+        fields = ("motor_key",
+                  "name" ,
+                  "power_out_hp",
+                  "power_out_kw",
+                  "voltage_rating",
+                  "speed_rpm",
+                  "amps_rating",
+                  "off_level",
+                  "frame",
+                  "insulation_class",
+                  "locked_rotor_current",
+                  "locked_rotor_code",
+                  "freq_hz",
+                  "resultado_electrico",
+                  "transitorio_arranque",
+                  )
 
     def create(self, validated_data):
         # print("Hola")
@@ -52,7 +67,6 @@ class MotorSerializer(serializers.ModelSerializer):
         transitorio_arranque = motor.transitorioarranque_set.first()
         response_data = {
             "motor_key": motor.motor_key,
-            "modelo": motor.modelo,
             "name": motor.name,
             "resultado_electrico_key": resultado_electrico.res_elec_key,
             "transitorio_arranque_key": transitorio_arranque.t_arranque_key
