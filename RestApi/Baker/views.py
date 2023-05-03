@@ -131,46 +131,60 @@ class MedicionREUploadView(APIView):
             return Response({'error': e}, status=400)
 
         test_re_pk = test_re.pk
-
-        # Iterar sobre las filas del DataFrame
-        mediciones_data = []
-        for index, row in df.iterrows():
-            # Crear el objeto Reading y agregarlo a la lista de mediciones
-            medicion_data = {
-                "test_re_nro": test_re_pk,
-                "item": row["item"],
-                "time": row["time"],
-                "mag_v1": row["MagV1"],
-                "mag_v2": row["MagV2"],
-                "mag_v3": row["MagV3"],
-                "ang_v1": row["AngV1"],
-                "ang_v2": row["AngV2"],
-                "ang_v3": row["AngV3"],
-                "v1_freq": row["V1_Freq"],
-                "v2_freq": row["V2_Freq"],
-                "v3_freq": row["V3_Freq"],
-                "mag_i1": row["MagI1"],
-                "mag_i2": row["MagI2"],
-                "mag_i3": row["MagI3"],
-                "ang_i1": row["AngI1"],
-                "ang_i2": row["AngI2"],
-                "ang_i3": row["AngI3"],
-                "i1_freq": row["I1_Freq"],
-                "i2_freq": row["I2_Freq"],
-                "i3_freq": row["I3_Freq"],
-            }
-            mediciones_data.append(medicion_data)
-
-        # Serializar y guardar las mediciones
-        mediciones_serializer = MedicionRESerializer(data=mediciones_data,
-                                                     many=True)
-        mediciones_serializer.is_valid(raise_exception=True)
-        mediciones_serializer.save()
+        data = df.to_dict(orient='records')
+        # Crear una lista de objetos MedicionRE no guardados
+        mediciones = []
+        for medicion in data:
+            medicion['test_re_nro'] = test_re
+            mediciones.append(MedicionRE(**medicion))
+        # Insertar todos los objetos en la base de datos en una sola consulta
+        MedicionRE.objects.bulk_create(mediciones)
 
         return Response(
             {"message": "Las mediciones R.E. han sido creadas exitosamente"},
             status=status.HTTP_201_CREATED,
         )
+
+        # #Iterar sobre las filas del DataFrame
+        # mediciones_data = []
+        # for index, row in df.iterrows():
+        #     # Crear el objeto Reading y agregarlo a la lista de mediciones
+        #     medicion_data = {
+        #         "test_re_nro": test_re_pk,
+        #         "item": row["item"],
+        #         "time": row["time"],
+        #         "mag_v1": row["MagV1"],
+        #         "mag_v2": row["MagV2"],
+        #         "mag_v3": row["MagV3"],
+        #         "ang_v1": row["AngV1"],
+        #         "ang_v2": row["AngV2"],
+        #         "ang_v3": row["AngV3"],
+        #         "v1_freq": row["V1_Freq"],
+        #         "v2_freq": row["V2_Freq"],
+        #         "v3_freq": row["V3_Freq"],
+        #         "mag_i1": row["MagI1"],
+        #         "mag_i2": row["MagI2"],
+        #         "mag_i3": row["MagI3"],
+        #         "ang_i1": row["AngI1"],
+        #         "ang_i2": row["AngI2"],
+        #         "ang_i3": row["AngI3"],
+        #         "i1_freq": row["I1_Freq"],
+        #         "i2_freq": row["I2_Freq"],
+        #         "i3_freq": row["I3_Freq"],
+        #     }
+        
+        # mediciones_data.append(medicion_data)
+
+        # # Serializar y guardar las mediciones
+        # mediciones_serializer = MedicionRESerializer(data=mediciones_data,
+        #                                              many=True)
+        # mediciones_serializer.is_valid(raise_exception=True)
+        # mediciones_serializer.save()
+
+        # return Response(
+        #     {"message": "Las mediciones R.E. han sido creadas exitosamente"},
+        #     status=status.HTTP_201_CREATED,
+        # )
 
 
 class MedicionTAUploadView(APIView):
