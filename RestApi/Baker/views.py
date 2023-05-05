@@ -237,6 +237,24 @@ class MedicionTAUploadView(APIView):
         )
 
 
+class MotorDeleteView(APIView):
+    def delete(self, request, pk):
+        try:
+            motor = Motor.objects.get(pk=pk)
+            motor.delete()
+            return Response({"message": f"El motor con el id '{pk}' fue correctamente eliminado"}, status=status.HTTP_204_NO_CONTENT)
+        except Motor.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+class TestREDeleteView(APIView):
+    def delete(self, request, pk):
+        try:
+            test_re = TestRE.objects.get(pk=pk)
+            test_re.delete()
+            return Response({"message": f"Las mediciones del test '{pk}' fueron correctamente eliminadas"}, status=status.HTTP_204_NO_CONTENT)
+        except TestRE.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
 # class ResultadoElectricoCreateView(APIView):
 #     permission_classes = [IsAuthenticated]
 
