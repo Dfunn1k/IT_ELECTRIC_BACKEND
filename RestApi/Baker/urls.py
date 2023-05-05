@@ -2,8 +2,9 @@ from django.urls import path
 from rest_framework.authtoken import views
 
 from .views import (LoginView, LogoutView, MedicionREUploadView,
-                    MedicionTAUploadView, MotorCreateView,
-                    TestREMedicionesView, UserList, UserMotorsView)
+                    MedicionTAUploadView, MotorCreateView, MotorDeleteView,
+                    TestREDeleteView, TestREMedicionesView, UserList,
+                    UserMotorsView)
 
 app_name = 'app'
 urlpatterns = [
@@ -15,4 +16,6 @@ urlpatterns = [
     path('api/medicionesRE/upload/', MedicionREUploadView.as_view(), name='create_medicion_re'),
     path('api/medicionesTA/upload/', MedicionTAUploadView.as_view(), name='create_medicion_ta'),
     path('api/testmedicionesRE/<int:test_re_nro>/', TestREMedicionesView.as_view(), name='get_medicion_re'),
+    path('api/delete/engine/<int:pk>/', MotorDeleteView.as_view(), name="delete_engine"),
+    path('api/delete/testRE/<int:pk>/', TestREDeleteView.as_view(), name="delete_testRE")
 ]
