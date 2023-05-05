@@ -112,7 +112,7 @@ class MedicionTA(models.Model):
     medicion_ta_key = models.AutoField(primary_key=True)
     test_ta_nro = models.ForeignKey(TestTA, on_delete=models.CASCADE)
     item = models.IntegerField()
-    time = models.DateTimeField()
+    time = models.FloatField()
     v1 = models.FloatField()
     v2 = models.FloatField()
     v3 = models.FloatField()
