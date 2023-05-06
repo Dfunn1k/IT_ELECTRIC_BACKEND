@@ -1,4 +1,7 @@
 from django.contrib.auth.models import User
+from django_pandas.io import read_frame
+from django_pandas.serializers import DataFrameSerializer
+
 from rest_framework import serializers
 
 from .models import (MedicionRE, MedicionTA, Motor, ResultadoElectrico, TestRE,
@@ -73,35 +76,36 @@ class MotorSerializer(serializers.ModelSerializer):
         }
         return response_data
         
+class MedicionRESerializer(Data)
 
 
-class MedicionRESerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MedicionRE
-        fields = (
-            "medicion_re_key",
-            "test_re_nro",
-            "item",
-            "time",
-            "mag_v1",
-            "mag_v2",
-            "mag_v3",
-            "ang_v1",
-            "ang_v2",
-            "ang_v3",
-            "v1_freq",
-            "v2_freq",
-            "v3_freq",
-            "mag_i1",
-            "mag_i2",
-            "mag_i3",
-            "ang_i1",
-            "ang_i2",
-            "ang_i3",
-            "i1_freq",
-            "i2_freq",
-            "i3_freq",
-        )
+# class MedicionRESerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = MedicionRE
+#         fields = (
+#             "medicion_re_key",
+#             "test_re_nro",
+#             "item",
+#             "time",
+#             "mag_v1",
+#             "mag_v2",
+#             "mag_v3",
+#             "ang_v1",
+#             "ang_v2",
+#             "ang_v3",
+#             "v1_freq",
+#             "v2_freq",
+#             "v3_freq",
+#             "mag_i1",
+#             "mag_i2",
+#             "mag_i3",
+#             "ang_i1",
+#             "ang_i2",
+#             "ang_i3",
+#             "i1_freq",
+#             "i2_freq",
+#             "i3_freq",
+#         )
 
 
 class MedicionTASerializer(serializers.ModelSerializer):

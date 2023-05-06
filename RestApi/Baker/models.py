@@ -76,33 +76,26 @@ class TestTA(models.Model):
 class MedicionRE(models.Model):
     medicion_re_key = models.AutoField(primary_key=True)
     test_re_nro = models.ForeignKey(TestRE, on_delete=models.CASCADE)
-    item = models.IntegerField()
-    time = models.DateTimeField()
-    # Tension.magnitud
-    mag_v1 = models.FloatField()
-    mag_v2 = models.FloatField()
-    mag_v3 = models.FloatField()
-    # --
-    ang_v1 = models.FloatField()
-    ang_v2 = models.FloatField()
-    ang_v3 = models.FloatField()
-    # --
-    v1_freq = models.FloatField()
-    v2_freq = models.FloatField()
-    v3_freq = models.FloatField()
-
-    # Current.magnitud
-    mag_i1 = models.FloatField()
-    mag_i2 = models.FloatField()
-    mag_i3 = models.FloatField()
-    # --
-    ang_i1 = models.FloatField()
-    ang_i2 = models.FloatField()
-    ang_i3 = models.FloatField()
-    # --
-    i1_freq = models.FloatField()
-    i2_freq = models.FloatField()
-    i3_freq = models.FloatField()
+    # item = models.IntegerField()
+    # time = models.DateTimeField()
+    # mag_v1 = models.FloatField()
+    # mag_v2 = models.FloatField()
+    # mag_v3 = models.FloatField()
+    # ang_v1 = models.FloatField()
+    # ang_v2 = models.FloatField()
+    # ang_v3 = models.FloatField()
+    # v1_freq = models.FloatField()
+    # v2_freq = models.FloatField()
+    # v3_freq = models.FloatField()
+    # mag_i1 = models.FloatField()
+    # mag_i2 = models.FloatField()
+    # mag_i3 = models.FloatField()
+    # ang_i1 = models.FloatField()
+    # ang_i2 = models.FloatField()
+    # ang_i3 = models.FloatField()
+    # i1_freq = models.FloatField()
+    # i2_freq = models.FloatField()
+    # i3_freq = models.FloatField()
 
     class Meta:
         unique_together = ('test_re_nro', 'item')

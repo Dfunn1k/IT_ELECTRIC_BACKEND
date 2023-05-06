@@ -36,6 +36,7 @@ THIRD_APPS = (
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
+    'django_pandas',
 )
 
 LOCAL_APPS = (
