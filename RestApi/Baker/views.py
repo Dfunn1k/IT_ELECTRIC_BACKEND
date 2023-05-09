@@ -1,29 +1,29 @@
-from datetime import datetime
-
-import pandas as pd
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.shortcuts import render
 from django.utils import timezone
+
+import pandas as pd
 from openpyxl import load_workbook
+
+from concurrent.futures import ThreadPoolExecutor
+
 from rest_framework import generics, status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.generics import CreateAPIView, ListAPIView
-# excel
-from rest_framework.parsers import (FileUploadParser, FormParser, JSONParser,
-                                    MultiPartParser)
+from rest_framework.parsers import FileUploadParser, FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import (MedicionRE, MedicionTA, Motor, ResultadoElectrico, TestRE,
-                     TestTA, TransitorioArranque)
-from .serializers import (MedicionRESerializer, MedicionTASerializer,
-                          MotorSerializer, ResultadoElectricoSerializer,
-                          TestRESerializer, TestTASerializer,
-                          TransitorioArranqueSerializer, UserSerializer)
+from .models import MedicionRE, MedicionTA, Motor, ResultadoElectrico, TestRE, TestTA, TransitorioArranque
+from .serializers import MedicionRESerializer, MedicionTASerializer, MotorSerializer, ResultadoElectricoSerializer, TestRESerializer, TestTASerializer, TransitorioArranqueSerializer, UserSerializer
 
+from datetime import datetime
+
+
+from .utils import create_objects, read_excel_chunk
 
 class UserList(ListAPIView):
     queryset = User.objects.all()
@@ -103,6 +103,8 @@ class MedicionREUploadView(APIView):
     parser_classes = [MultiPartParser]
 
     def post(self, request, *args, **kwargs):
+
+        # Verificamos que se este enviando un archivo en la petición
         if "file" not in request.data:
             return Response(
                 {"error": "No file R.E. provided"},
@@ -110,12 +112,42 @@ class MedicionREUploadView(APIView):
             )
 
         file = request.data["file"]
-        wb = load_workbook(file)
+
+        # Verificamos que el archivo tenga una extensión xlsx
+        if not file.name.endswith('.xlsx'):
+            return Response(
+                {"error": "El archivo debe ser un archivo de Excel (.xlsx)"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Verificar si se puede leer el archivo
+        # try:
+        #     df = pd.read_excel(file)
+        # except Exception as e:
+        #     return Response(
+        #         {"error": "No se puede leer el archivo Excel"},
+        #         status=status.HTTP_400_BAD_REQUEST
+        #     )
+        # Verificar que las columnas esten presentes
+        # required_columns = [
+        #     "item", "time", "mag_v1", "mag_v2", "mag_v3", "ang_v1",
+        #     "ang_v2", "ang_v3", "v1_freq", "v2_freq", "v3_freq",
+        #     "mag_i1", "mag_i2", "mag_i3", "ang_i1", "ang_i2",
+        #     "ang_i3", "i1_freq", "i2_freq", "i3_freq"
+        # ]
+        # missing_columns = set(required_columns) - set(df.columns)
+        # if missing_columns:
+        #     return Response(
+        #         {"error": f"El archivo debe contener las columnas {', '.join(required_columns)}"},
+        #         status=status.HTTP_400_BAD_REQUEST
+        #     )
+        
+        # Obtener la data necesaria para crear el objeto testRE
         res_elec_nro = request.data.get("res_elec_nro")
         resultado_electrico = ResultadoElectrico.objects.get(pk=res_elec_nro)
-
         # Leer el archivo de Excel y obtener las mediciones
-        df = pd.read_excel(file)
+        wb = load_workbook(file, read_only=True)
+        #ws = wb.active
 
         sheet_name = wb.sheetnames[0].rsplit("-", 2)
         sheet_name = ":".join(sheet_name)
@@ -128,44 +160,17 @@ class MedicionREUploadView(APIView):
                 test_date_time=test_date_time
             )
         except ValidationError as e:
-            return Response({'error': e}, status=400)
-
-        test_re_pk = test_re.pk
-
-        # Iterar sobre las filas del DataFrame
-        mediciones_data = []
-        for index, row in df.iterrows():
-            # Crear el objeto Reading y agregarlo a la lista de mediciones
-            medicion_data = {
-                "test_re_nro": test_re_pk,
-                "item": row["item"],
-                "time": row["time"],
-                "mag_v1": row["MagV1"],
-                "mag_v2": row["MagV2"],
-                "mag_v3": row["MagV3"],
-                "ang_v1": row["AngV1"],
-                "ang_v2": row["AngV2"],
-                "ang_v3": row["AngV3"],
-                "v1_freq": row["V1_Freq"],
-                "v2_freq": row["V2_Freq"],
-                "v3_freq": row["V3_Freq"],
-                "mag_i1": row["MagI1"],
-                "mag_i2": row["MagI2"],
-                "mag_i3": row["MagI3"],
-                "ang_i1": row["AngI1"],
-                "ang_i2": row["AngI2"],
-                "ang_i3": row["AngI3"],
-                "i1_freq": row["I1_Freq"],
-                "i2_freq": row["I2_Freq"],
-                "i3_freq": row["I3_Freq"],
-            }
-            mediciones_data.append(medicion_data)
-
-        # Serializar y guardar las mediciones
-        mediciones_serializer = MedicionRESerializer(data=mediciones_data,
-                                                     many=True)
-        mediciones_serializer.is_valid(raise_exception=True)
-        mediciones_serializer.save()
+            test_re = TestRE.objects.get(res_elec_nro=resultado_electrico, test_date_time=test_date_time)
+            test_re.delete()
+            return Response({'error': f"{e}, tambien se elimino el testRE",}, status=400)
+        
+        
+        with ThreadPoolExecutor() as executor:
+            futures = []
+            for chunk in read_excel_chunk(wb, 625, test_re):
+                futures.append(executor.submit(create_objects, chunk))
+            for future in futures:
+                future.result()
 
         return Response(
             {"message": "Las mediciones R.E. han sido creadas exitosamente"},
@@ -185,7 +190,7 @@ class MedicionTAUploadView(APIView):
             )
 
         file = request.data["file"]
-        wb = load_workbook(file)
+        wb = load_workbook(file, read_only=True)
         trans_arran_nro = request.data.get("trans_arran_nro")
         transitorio_arranque = TransitorioArranque.objects.get(
             pk=trans_arran_nro)
@@ -254,46 +259,3 @@ class TestREDeleteView(APIView):
             return Response({"message": f"Las mediciones del test '{pk}' fueron correctamente eliminadas"}, status=status.HTTP_204_NO_CONTENT)
         except TestRE.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-
-# class ResultadoElectricoCreateView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def post(self, request, format=None):
-#         parser = JSONParser()
-#         data = parser.parse(request)
-
-#         serializer = ResultadoElectricoSerializer(data=data)
-
-#         # Si el serializador es válido, se procesa la información
-#         if serializer.is_valid():
-#             # Se obtiene el objeto motor y su llave primaria
-#             motor_obj = serializer.validated_data["motor_nro"]
-#             motor_nro = motor_obj.motor_key
-
-#             # Se obtiene el tipo de prueba o se establece por defecto
-#             #test_type = serializer.validated_data.get("test_type")
-
-#             try:
-#                 # Se busca el motor y se verifica que pertenezca al usuario
-#                 # actual
-#                 motor = Motor.objects.get(motor_key=motor_nro,
-#                                           usuario=request.user)
-#             except Motor.DoesNotExist:
-#                 # Si el motor no existe o no está registrado al usuario actual,
-#                 # se retorna un error 404
-#                 return Response(
-#                     {
-#                         "error": f"Motor with ID {motor_nro} does not exist \
-#                             or is not registered to the current user"
-#                     },
-#                     status=status.HTTP_404_NOT_FOUND,
-#                 )
-
-#             # Se crea el objeto de prueba y se obtiene su llave primaria
-#             test = ResultadoElectrico.objects.create(motor_nro=motor)
-#             response_data = {"test_id": test.test_key}
-#             return Response(response_data, status=status.HTTP_201_CREATED)
-
-#         # Si el serializador no es válido, se retorna un error 400 con los
-#         # errores de validación
-# return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
