@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from .models import (MedicionRE, MedicionTA, Motor, ResultadoElectrico, TestRE,
-                     TestTA, TransitorioArranque)
+from .models import (MeasurementER, MeasurementTB, Engine, ElectricalResult, TestER,
+                     TestTB, TransientBoot)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -11,38 +11,38 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["username", "email", "first_name", "last_name"]
 
 
-class TestRESerializer(serializers.ModelSerializer):
+class TestERSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TestRE
-        fields = ("test_re_key", "res_elec_nro", "test_date_time")
+        model = TestER
+        fields = ("test_electrical_result_pk", "electrical_result_fk", "test_date_time")
 
 
-class ResultadoElectricoSerializer(serializers.ModelSerializer):
-    test_re = TestRESerializer(many=True, read_only=True, source='testre_set')
+class ElectricalResultSerializer(serializers.ModelSerializer):
+    test_electrical_result = TestERSerializer(many=True, read_only=True, source='tester_set')
     class Meta:
-        model = ResultadoElectrico
-        fields = ("res_elec_key", "motor_nro", "test_re")
+        model = ElectricalResult
+        fields = ("electrical_result_pk", "engine_fk", "test_electrical_result")
 
 
-class TestTASerializer(serializers.ModelSerializer):
+class TestTBSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TestTA
-        fields = ("test_ta_key", "trans_arran_nro", "test_date_time")
+        model = TestTB
+        fields = ("test_transient_boot_pk", "transient_boot_fk", "test_date_time")
 
 
-class TransitorioArranqueSerializer(serializers.ModelSerializer):
-    test_ta = TestTASerializer(many=True, read_only=True, source='testta_set')
+class TransientBootSerializer(serializers.ModelSerializer):
+    test_transient_boot = TestTBSerializer(many=True, read_only=True, source='testtb_set')
     class Meta:
-        model = TransitorioArranque
-        fields = ("t_arranque_key", "motor_nro", "test_ta")
+        model = TransientBoot
+        fields = ("transient_boot_pk", "engine_fk", "test_transient_boot")
 
 
-class MotorSerializer(serializers.ModelSerializer):
-    resultado_electrico = ResultadoElectricoSerializer(many=True, read_only=True, source='resultadoelectrico_set')
-    transitorio_arranque = TransitorioArranqueSerializer(many=True, read_only=True, source='transitorioarranque_set')
+class EngineSerializer(serializers.ModelSerializer):
+    electrical_result = ElectricalResultSerializer(many=True, read_only=True, source='electricalresult_set')
+    transient_boot = TransientBootSerializer(many=True, read_only=True, source='transientboot_set')
     class Meta:
-        model = Motor
-        fields = ("motor_key",
+        model = Engine
+        fields = ("engine_pk",
                   "name" ,
                   "power_out_hp",
                   "power_out_kw",
@@ -55,33 +55,31 @@ class MotorSerializer(serializers.ModelSerializer):
                   "locked_rotor_current",
                   "locked_rotor_code",
                   "freq_hz",
-                  "resultado_electrico",
-                  "transitorio_arranque",
+                  "electrical_result",
+                  "transient_boot",
                   )
 
     def create(self, validated_data):
-        # print("Hola")
-        motor = Motor.objects.create(**validated_data)
-        resultado_electrico = motor.resultadoelectrico_set.first()
-        # print(resultado_electrico.res_elec_key)
-        transitorio_arranque = motor.transitorioarranque_set.first()
+        engine = Engine.objects.create(**validated_data)
+        electrical_result = engine.electricalresult_set.first()
+        transient_boot = engine.transientboot_set.first()
         response_data = {
-            "motor_key": motor.motor_key,
-            "name": motor.name,
-            "resultado_electrico_key": resultado_electrico.res_elec_key,
-            "transitorio_arranque_key": transitorio_arranque.t_arranque_key
+            "engine_pk": engine.engine_pk,
+            "name": engine.name,
+            "electrical_result_pk": electrical_result.electrical_result_pk,
+            "boot_transient_pk": transient_boot.transient_boot_pk
         }
         return response_data
         
 
 
-class MedicionRESerializer(serializers.ModelSerializer):
+class MeasurementERSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MedicionRE
+        model = MeasurementER
         fields = (
-            "medicion_re_key",
-            "test_re_nro",
-            "item",
+            "measurement_electrical_result_pk",
+            "test_electrical_result_fk",
+            #"item",
             "time",
             "mag_v1",
             "mag_v2",
@@ -89,32 +87,32 @@ class MedicionRESerializer(serializers.ModelSerializer):
             "ang_v1",
             "ang_v2",
             "ang_v3",
-            "v1_freq",
-            "v2_freq",
-            "v3_freq",
             "mag_i1",
             "mag_i2",
             "mag_i3",
             "ang_i1",
             "ang_i2",
             "ang_i3",
+            "v1_freq",
+            "v2_freq",
+            "v3_freq",
             "i1_freq",
             "i2_freq",
             "i3_freq",
         )
 
 
-class MedicionTASerializer(serializers.ModelSerializer):
+class MeasurementTBSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MedicionTA
-        fields = ("medicion_ta_key",
-                  "test_ta_nro",
-                  "item",
+        model = MeasurementTB
+        fields = ("measurement_transient_boot_pk",
+                  "test_transient_boot_fk",
+                  #"item",
                   "time",
-                  "v1",
-                  "v2",
-                  "v3",
-                  "i1",
-                  "i2",
-                  "i3",
+                  "ia",
+                  "ib",
+                  "ic",
+                  "va",
+                  "vb",
+                  "vc",
                   )
