@@ -3,11 +3,10 @@ from django.core.exceptions import ValidationError
 from django.db import models
 
 
-class Motor(models.Model):
-    motor_key = models.AutoField(primary_key=True)
+class Engine(models.Model):
+    engine_pk = models.AutoField(primary_key=True)
     #no deber ser unique -> 2 usuarios pueden crear un motod llamado "motor A", to do✅
     name = models.CharField(max_length=100, unique=True)
-    #model = models.CharField(max_length=100)
     power_out_hp = models.FloatField()
     power_out_kw = models.FloatField()
     voltage_rating = models.FloatField()
@@ -19,64 +18,55 @@ class Motor(models.Model):
     locked_rotor_current = models.FloatField()
     locked_rotor_code = models.FloatField()
     freq_hz = models.FloatField()
-
-
-
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
         # Si el objeto no tiene un id, entonces es nuevo y se está creando
         if not self.pk:
             super().save(*args, **kwargs)
             # Crear una instancia de R.E y T.A asociada a este Motor
-            ResultadoElectrico.objects.create(motor_nro=self)
-            TransitorioArranque.objects.create(motor_nro=self)
+            ElectricalResult.objects.create(engine_fk=self)
+            TransientBoot.objects.create(engine_fk=self)
         else:
             super().save(*args, **kwargs)
 
 
-class ResultadoElectrico(models.Model):
-    res_elec_key = models.AutoField(primary_key=True)
-    motor_nro = models.ForeignKey(Motor, on_delete=models.CASCADE)
-    # test_type = models.CharField(max_length=100
-    # , default="notest")
-    # test_date_time = models.DateTimeField()
+class ElectricalResult(models.Model):
+    electrical_result_pk = models.AutoField(primary_key=True)
+    engine_fk = models.ForeignKey(Engine, on_delete=models.CASCADE)
 
+class TransientBoot(models.Model):
+    transient_boot_pk = models.AutoField(primary_key=True)
+    engine_fk = models.ForeignKey(Engine, on_delete=models.CASCADE)
 
-class TransitorioArranque(models.Model):
-    t_arranque_key = models.AutoField(primary_key=True)
-    motor_nro = models.ForeignKey(Motor, on_delete=models.CASCADE)
-
-
-class TestRE(models.Model):
-    test_re_key = models.AutoField(primary_key=True)
-    res_elec_nro = models.ForeignKey(
-        ResultadoElectrico, on_delete=models.CASCADE)
+class TestER(models.Model):
+    test_electrical_result_pk = models.AutoField(primary_key=True)
+    electrical_result_fk = models.ForeignKey(
+        ElectricalResult, on_delete=models.CASCADE)
     test_date_time = models.DateTimeField()
 
     def save(self, *args, **kwargs):
-        if TestRE.objects.filter(res_elec_nro=self.res_elec_nro,test_date_time=self.test_date_time).exists():
+        if TestER.objects.filter(electrical_result_fk=self.electrical_result_fk,test_date_time=self.test_date_time).exists():
             raise ValidationError("Ya existe un archivo con la misma fecha para este TestRE")
         else:
             super().save(*args, **kwargs)
 
-class TestTA(models.Model):
-    test_ta_key = models.AutoField(primary_key=True)
-    trans_arran_nro = models.ForeignKey(
-        TransitorioArranque, on_delete=models.CASCADE)
+class TestTB(models.Model):
+    test_transient_boot_pk = models.AutoField(primary_key=True)
+    transient_boot_fk = models.ForeignKey(
+        TransientBoot, on_delete=models.CASCADE)
     test_date_time = models.DateTimeField()
 
     def save(self, *args, **kwargs):
-        if TestTA.objects.filter(trans_arran_nro=self.trans_arran_nro,test_date_time=self.test_date_time).exists():
+        if TestTB.objects.filter(transient_boot_fk=self.transient_boot_fk,test_date_time=self.test_date_time).exists():
             raise ValidationError("Ya existe un archivo con la misma fecha para este TestTA")
         else:
             super().save(*args, **kwargs)
 
-
-class MedicionRE(models.Model):
-    medicion_re_key = models.AutoField(primary_key=True)
-    test_re_nro = models.ForeignKey(TestRE, on_delete=models.CASCADE, null=True)
-    item = models.IntegerField()
+class MeasurementER(models.Model):
+    measurement_electrical_result_pk = models.AutoField(primary_key=True)
+    test_electrical_result_fk = models.ForeignKey(TestER, on_delete=models.CASCADE)
+    #item = models.IntegerField()
     time = models.DateTimeField()
     
     mag_v1 = models.FloatField()
@@ -122,7 +112,6 @@ class MedicionRE(models.Model):
     lsskw_1 = models.FloatField()
     lsskw_2 = models.FloatField()
     lsskw_3 = models.FloatField()
-# ---------------------------------------------
 
     dv_u2 = models.FloatField()
     dv_u0 = models.FloatField()
@@ -342,25 +331,24 @@ class MedicionRE(models.Model):
     ih3_v23 = models.FloatField()
     ih3_v24 = models.FloatField()
     ih3_v25 = models.FloatField()
-    class Meta:
-        unique_together = ('test_re_nro', 'item')
+    # class Meta:
+    #     unique_together = ('test_electrical_result_fk', 'item')
 
     def __str__(self):
-        return f"Medicion RE pk:{self.medicion_re_key} y test.pk:{self.test_re_nro}"
+        return f"Medicion RE pk:{self.measurement_electrical_result_pk} y test.pk:{self.test_electrical_result_fk}"
 
 
-class MedicionTA(models.Model):
-    medicion_ta_key = models.AutoField(primary_key=True)
-    test_ta_nro = models.ForeignKey(TestTA, on_delete=models.CASCADE)
-    item = models.IntegerField()
+class MeasurementTB(models.Model):
+    measurement_transient_boot_pk = models.AutoField(primary_key=True)
+    test_transient_boot_fk = models.ForeignKey(TestTB, on_delete=models.CASCADE)
+    #item = models.IntegerField()
     time = models.FloatField()
-    v1 = models.FloatField()
-    v2 = models.FloatField()
-    v3 = models.FloatField()
-    i1 = models.FloatField()
-    i2 = models.FloatField()
-    i3 = models.FloatField()
-
-    class Meta:
-        unique_together = ('test_ta_nro', 'item')
+    ia = models.FloatField()
+    ib = models.FloatField()
+    ic = models.FloatField()
+    va = models.FloatField()
+    vb = models.FloatField()
+    vc = models.FloatField()
+    #class Meta:
+    #    unique_together = ('test_transient_boot_fk', 'item')
 
