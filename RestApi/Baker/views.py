@@ -17,15 +17,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import MedicionRE, MedicionTA, Motor, ResultadoElectrico, TestRE, TestTA, TransitorioArranque
-from .serializers import MedicionRESerializer, MedicionTASerializer, MotorSerializer, ResultadoElectricoSerializer, TestRESerializer, TestTASerializer, TransitorioArranqueSerializer, UserSerializer
+from .models import MeasurementER, MeasurementTB, Engine, ElectricalResult, TestER, TestTB, TransientBoot
+from .serializers import MeasurementERSerializer, MeasurementTBSerializer, EngineSerializer, ElectricalResultSerializer, TestERSerializer, TestTBSerializer, TransientBootSerializer, UserSerializer
 
 from datetime import datetime
 
 
 from .utils import create_objects, read_excel_chunk
 
-class UserList(ListAPIView):
+class GetUserList(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -50,60 +50,67 @@ class LogoutView(APIView):
         return Response({'detail': 'El token fue eliminado'},status=204)
 
 
-class MotorCreateView(APIView):
+class CreateEngineView(APIView):
     def post(self, request, format=None):
         # Utilizar el JSONParser para procesar los datos en formato JSON
         parser = JSONParser()
         data = parser.parse(request)
 
-        serializer = MotorSerializer(data=data)
+        serializer = EngineSerializer(data=data)
         if serializer.is_valid():
             # Obtener o crear el motor según su número nombre
             try:
-                motor = Motor.objects.get(name=data["name"],
-                                          usuario=request.user)
-                response_data = MotorSerializer(motor).data
-            except (Motor.DoesNotExist, KeyError):
+                engine = Engine.objects.get(name=data["name"],
+                                          user=request.user)
+                response_data = EngineSerializer(engine).data
+            except (Engine.DoesNotExist, KeyError):
                 # motor = serializer.save(usuario=request.user)
-                response_data = serializer.save(usuario=request.user)
-
-            # Crear una instancia del serializador para devolver los datos del
-            # motor
-            # response_serializer = MotorSerializer(motor)
-            # response_data = response_serializer.data
+                response_data = serializer.save(user=request.user)
 
             return Response(response_data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-class UserMotorsView(APIView):
+class GetEnginesUserView(APIView):
     def get(self, request, user_pk):
-        motors = Motor.objects.filter(usuario__pk=user_pk)
-        serializer = MotorSerializer(motors, many=True)
+        engines = Engine.objects.filter(user__pk=user_pk)
+        serializer = EngineSerializer(engines, many=True)
         return Response(serializer.data)
 
-class TestREMedicionesView(APIView):
-    def get(self, request, test_re_nro):
-        mediciones = MedicionRE.objects.filter(test_re_nro=test_re_nro)
+class GetMeasurementsERView(APIView):
+    def get(self, request, test_er):
+        """Esta función obtiene los datos de las columnas mostradas, re"""
+        measurements = MeasurementER.objects.filter(test_electrical_result_fk=test_er)
         data = {
             #'item': list(mediciones.values_list('item', flat=True)),
-            'time': list(mediciones.values_list('time', flat=True)),
-            'mag_v1': list(mediciones.values_list('mag_v1', flat=True)),
-            'mag_v2': list(mediciones.values_list('mag_v2', flat=True)),
-            'mag_v3': list(mediciones.values_list('mag_v3', flat=True)),
-            'mag_i1': list(mediciones.values_list('mag_i1', flat=True)),
-            'mag_i2': list(mediciones.values_list('mag_i2', flat=True)),
-            'mag_i3': list(mediciones.values_list('mag_i3', flat=True))
+            'time': list(measurements.values_list('time', flat=True)),
+            'mag_v1': list(measurements.values_list('mag_v1', flat=True)),
+            'mag_v2': list(measurements.values_list('mag_v2', flat=True)),
+            'mag_v3': list(measurements.values_list('mag_v3', flat=True)),
+            'mag_i1': list(measurements.values_list('mag_i1', flat=True)),
+            'mag_i2': list(measurements.values_list('mag_i2', flat=True)),
+            'mag_i3': list(measurements.values_list('mag_i3', flat=True))
         }
         return Response(data)
-        #serializer = MedicionRESerializer(mediciones, many=True)
-        #return Response(serializer.data)
+    
+class GetMeasurementsTBView(APIView):
+    def get(self, request, test_tb):
+        measurements = MeasurementTB.objects.filter(test_transient_boot_fk=test_tb)
+        data = {
+            'time': list(measurements.values_list('time', flat=True)),
+            'ia': list(measurements.values_list('ia', flat=True)),
+            'ib': list(measurements.values_list('ib', flat=True)),
+            'ic': list(measurements.values_list('ic', flat=True)),
+            'va': list(measurements.values_list('va', flat=True)),
+            'vb': list(measurements.values_list('vb', flat=True)),
+            'vc': list(measurements.values_list('vc', flat=True))
+        }
+        return Response(data)
 
-class MedicionREUploadView(APIView):
+class UploadMeasurementsERView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
 
-    def post(self, request, *args, **kwargs):
-
+    def post(self, request, pk):
         # Verificamos que se este enviando un archivo en la petición
         if "file" not in request.data:
             return Response(
@@ -143,11 +150,10 @@ class MedicionREUploadView(APIView):
         #     )
         
         # Obtener la data necesaria para crear el objeto testRE
-        res_elec_nro = request.data.get("res_elec_nro")
-        resultado_electrico = ResultadoElectrico.objects.get(pk=res_elec_nro)
+        electrical_result_fk = pk
+        obj_electrical_result = ElectricalResult.objects.get(pk=electrical_result_fk)
         # Leer el archivo de Excel y obtener las mediciones
         wb = load_workbook(file, read_only=True)
-        #ws = wb.active
 
         sheet_name = wb.sheetnames[0].rsplit("-", 2)
         sheet_name = ":".join(sheet_name)
@@ -155,34 +161,34 @@ class MedicionREUploadView(APIView):
         test_date_time = timezone.make_aware(test_date_time)
         
         try:
-            test_re = TestRE.objects.create(
-                res_elec_nro=resultado_electrico,
+            test_electrical_result = TestER.objects.create(
+                electrical_result_fk=obj_electrical_result,
                 test_date_time=test_date_time
             )
         except ValidationError as e:
-            test_re = TestRE.objects.get(res_elec_nro=resultado_electrico, test_date_time=test_date_time)
-            test_re.delete()
-            return Response({'error': f"{e}, tambien se elimino el testRE",}, status=400)
+            test_electrical_result = TestER.objects.get(electrical_result_fk=obj_electrical_result, test_date_time=test_date_time)
+            test_electrical_result.delete()
+            return Response({'error': f"{e}, tambien se elimino el testER",}, status=400)
         
         
         with ThreadPoolExecutor() as executor:
             futures = []
-            for chunk in read_excel_chunk(wb, 625, test_re):
+            for chunk in read_excel_chunk(wb, 625, test_electrical_result):
                 futures.append(executor.submit(create_objects, chunk))
             for future in futures:
                 future.result()
 
         return Response(
-            {"message": "Las mediciones R.E. han sido creadas exitosamente"},
+            {"message": "Las mediciones E.R han sido creadas exitosamente"},
             status=status.HTTP_201_CREATED,
         )
 
 
-class MedicionTAUploadView(APIView):
+class UploadMeasurementsTBView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, pk):
         if "file" not in request.data:
             return Response(
                 {"error": "No file T.A. provided"},
@@ -190,72 +196,88 @@ class MedicionTAUploadView(APIView):
             )
 
         file = request.data["file"]
+
+        #verificamos que el archivo tenga una extensión xlsx
+        if not file.name.endswith('.xlsx'):
+            return Response(
+                {"error": "El archivo debe ser un archivo de Excel (.xlsx)"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        transient_boot_fk = pk
+        obj_transient_boot = TransientBoot.objects.get(
+            pk=transient_boot_fk)
         wb = load_workbook(file, read_only=True)
-        trans_arran_nro = request.data.get("trans_arran_nro")
-        transitorio_arranque = TransitorioArranque.objects.get(
-            pk=trans_arran_nro)
-
-        # Leer el archivo de Excel y obtener las mediciones
-        df = pd.read_excel(file)
-
+        print(wb.sheetnames)
         sheet_name = wb.sheetnames[0].rsplit("-", 2)
+
         sheet_name = ":".join(sheet_name)
         test_date_time = datetime.strptime(sheet_name, "%Y-%m-%dT%H:%M:%S")
         test_date_time = timezone.make_aware(test_date_time)
 
         try:
-            test_ta = TestTA.objects.create(
-                trans_arran_nro=transitorio_arranque,
+            test_transient_boot = TestTB.objects.create(
+                transient_boot_fk=obj_transient_boot,
                 test_date_time=test_date_time
             )
         except ValidationError as e:
-            return Response({'error': e}, status=400)
-
-        test_ta_pk = test_ta.pk
-
-        # Iterar sobre las filas del DataFrame
-        mediciones_data = []
-        for index, row in df.iterrows():
-            # Crear el objeto Reading y agregarlo a la lista de mediciones
-            medicion_data = {
-                "test_ta_nro": test_ta_pk,
-                "item": row["item"],
-                "time": row["time"],
-                "v1": row["v1"],
-                "v2": row["v2"],
-                "v3": row["v3"],
-                "i1": row["i1"],
-                "i2": row["i2"],
-                "i3": row["i3"],
-            }
-            mediciones_data.append(medicion_data)
-
-        # Serializar y guardar las mediciones
-        mediciones_serializer = MedicionTASerializer(data=mediciones_data,
-                                                     many=True)
-        mediciones_serializer.is_valid(raise_exception=True)
-        mediciones_serializer.save()
+            test_transient_boot = TestTB.objects.get(transient_boot_fk=obj_transient_boot, test_date_time=test_date_time)
+            test_transient_boot.delete()
+            return Response({'error': f"{e}, tambien se elimino el testTB"}, status=400)
+ 
+        with ThreadPoolExecutor() as executor:
+            futures = []
+            for chunk in read_excel_chunk(wb, 625, test_transient_boot):
+                futures.append(executor.submit(create_objects, chunk))
+            for future in futures:
+                future.result()
 
         return Response(
-            {"message": "Las mediciones T.A. han sido creadas exitosamente"},
+            {"message": "Las mediciones T.B. han sido creadas exitosamente"},
             status=status.HTTP_201_CREATED,
         )
 
 
-class MotorDeleteView(APIView):
+class DeleteEngineView(APIView):
     def delete(self, request, pk):
         try:
-            motor = Motor.objects.get(pk=pk)
-            motor.delete()
+            engine = Engine.objects.get(pk=pk)
+            engine.delete()
             return Response({"message": f"El motor con el id '{pk}' fue correctamente eliminado"}, status=status.HTTP_204_NO_CONTENT)
-        except Motor.DoesNotExist:
+        except Engine.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         
-class TestREDeleteView(APIView):
+class EditEngineView(APIView):
+    def put(self, request, pk):
+        engine = Engine.objects.get(pk=pk)
+        serializer = EngineSerializer(engine, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, pk):
+        engine = Engine.objects.get(pk=pk)
+        serializer = EngineSerializer(engine, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+        
+class DeleteTestERView(APIView):
     def delete(self, request, pk):
         try:
-            test_re = TestRE.objects.get(pk=pk)
-            test_re.delete()
+            test_electrical_result = TestER.objects.get(pk=pk)
+            test_electrical_result.delete()
             return Response({"message": f"Las mediciones del test '{pk}' fueron correctamente eliminadas"}, status=status.HTTP_204_NO_CONTENT)
-        except TestRE.DoesNotExist:
+        except TestER.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+class DeleteTestTBView(APIView):
+    def delete(self, request, pk):
+        try:
+            test_transient_boot = TestTB.objects.get(pk=pk)
+            test_transient_boot.delete()
+            return Response({"message": f"Las mediciones del test '{pk}' fueron correctamente eliminadas"}, status=status.HTTP_204_NO_CONTENT)
+        except TestTB.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
