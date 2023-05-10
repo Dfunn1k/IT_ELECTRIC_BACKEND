@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Motor
+from .models import Engine
 
 # Register your models here.
-admin.site.register(Motor)
+admin.site.register(Engine)

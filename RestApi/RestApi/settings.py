@@ -1,3 +1,4 @@
+import warnings
 from os import getenv
 from pathlib import Path
 
@@ -141,3 +142,6 @@ REST_FRAMEWORK = {
 
 
 CORS_ALLOWED_ORIGINS = ['http://localhost:4200']
+
+#evadir zona horaria ingena 
+warnings.filterwarnings('ignore', r"DateTimeField .* received a naive datetime", RuntimeWarning, r'django\.db\.models\.fields')
