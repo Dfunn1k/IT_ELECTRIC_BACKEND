@@ -159,7 +159,7 @@ class UploadMeasurementsERView(APIView):
         sheet_name = ":".join(sheet_name)
         test_date_time = datetime.strptime(sheet_name, "%Y-%m-%dT%H:%M:%S")
         test_date_time = timezone.make_aware(test_date_time)
-        
+        print("ya pase esto")
         try:
             test_electrical_result = TestER.objects.create(
                 electrical_result_fk=obj_electrical_result,
@@ -170,10 +170,10 @@ class UploadMeasurementsERView(APIView):
             test_electrical_result.delete()
             return Response({'error': f"{e}, tambien se elimino el testER",}, status=400)
         
-        
+        print("Voy a leer la data")
         with ThreadPoolExecutor() as executor:
             futures = []
-            for chunk in read_excel_chunk(wb, 625, test_electrical_result):
+            for chunk in read_excel_chunk(wb, 1, test_electrical_result):
                 futures.append(executor.submit(create_objects, chunk))
             for future in futures:
                 future.result()

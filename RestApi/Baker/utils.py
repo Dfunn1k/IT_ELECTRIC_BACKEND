@@ -5,7 +5,7 @@ from .models import MeasurementER, MeasurementTB, TestER, TestTB
 django.setup()
 
 #----------------------------------------------- método con hilos ----------------------------------------------
-@transaction.atomic
+#@transaction.atomic
 def create_objects(data):
     obj = data[0]
     if isinstance(obj, MeasurementER):
