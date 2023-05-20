@@ -611,7 +611,7 @@ def data_avarage(array, electrical_result_fk):
     ia1_amplitud = np.mean(array[:,50])
     ia2_amplitud = np.mean(array[:,51])
     ia1_fase = np.mean(array[:,53])
-    ia2_fase = np.mean(array[:54])
+    ia2_fase = np.mean(array[:,54])
 
     # mag_i1=fila[8],
     # mag_i2=fila[9],
