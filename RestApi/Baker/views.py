@@ -162,70 +162,75 @@ class UploadMeasurementsERView(APIView):
             test_electrical_result.delete()
             return Response({'error': f"{e}, tambien se elimino el testER", }, status=400)
         df = pd.read_excel(file)
-
         number_cores = multiprocessing.cpu_count()
 
-        array = df.to_numpy()
-        promedio = data_avarage(array, electrical_result_fk)
-        obj_average = AverageMeasurement(test_electrical_result_fk=test_electrical_result,
-                                         ab=promedio["voltage"]["ab"],
-                                         bc=promedio["voltage"]["bc"],
-                                         ca=promedio["voltage"]["ca"],
-                                         avg=promedio["voltage"]["avg"],
-                                         value=promedio["voltage"]["value"],
-                                         unbalance=promedio["unbalance"],
-                                         thdv_a=promedio["distorsion"]["thdv_a"],
-                                         thdv_b=promedio["distorsion"]["thdv_b"],
-                                         thdv_c=promedio["distorsion"]["thdv_c"],
-                                         thdv_avg=promedio["distorsion"]["thdv_avg"],
-                                         thdi_a=promedio["distorsion"]["thdi_a"],
-                                         thdi_b=promedio["distorsion"]["thdi_b"],
-                                         thdi_c=promedio["distorsion"]["thdi_c"],
-                                         thdi_avg=promedio["distorsion"]["thdi_avg"],
-                                         tdv_a=promedio["full_distorsion"]["tdv_a"],
-                                         tdv_b=promedio["full_distorsion"]["tdv_b"],
-                                         tdv_c=promedio["full_distorsion"]["tdv_c"],
-                                         tdv_avg=promedio["full_distorsion"]["tdv_avg"],
-                                         tdi_a=promedio["full_distorsion"]["tdi_a"],
-                                         tdi_b=promedio["full_distorsion"]["tdi_b"],
-                                         tdi_c=promedio["full_distorsion"]["tdi_c"],
-                                         tdi_avg=promedio["full_distorsion"]["tdi_avg"],
-                                         current_a=promedio["current_level"]["current_a"],
-                                         current_b=promedio["current_level"]["current_b"],
-                                         current_c=promedio["current_level"]["current_c"],
-                                         current_avg=promedio["current_level"]["current_avg"],
-                                         current_nominal=promedio["current_level"]["current_nominal"],
-                                         current_unbalance=promedio["current_unbalance"],
-                                         load_percen_avg=promedio["efficiency"]["load_percen_avg"],
-                                         lsskw_avg=promedio["efficiency"]["lsskw_avg"],
-                                         eff_avg=promedio["efficiency"]["eff_avg"],
-                                         sideband_amplitud_db=promedio["spectrum"]["sideband_amplitud_db"],
-                                         sideband_freq_hz=promedio["spectrum"]["sideband_freq_hz"],
-                                         vab_fase=promedio["symetrical_components"]["vab_fase"],
-                                         vbc_fase=promedio["symetrical_components"]["vbc_fase"],
-                                         vca_fase=promedio["symetrical_components"]["vca_fase"],
-                                         unbalance_voltage=promedio["symetrical_components"]["unbalance_voltage"],
-                                         va1_amplitud=promedio["symetrical_components"]["va1_amplitud"],
-                                         va2_amplitud=promedio["symetrical_components"]["va2_amplitud"],
-                                         va1_fase=promedio["symetrical_components"]["va1_fase"],
-                                         va2_fase=promedio["symetrical_components"]["va2_fase"],
-                                         ia_fase=promedio["symetrical_components"]["ia_fase"],
-                                         ib_fase=promedio["symetrical_components"]["ib_fase"],
-                                         ic_fase=promedio["symetrical_components"]["ic_fase"],
-                                         unbalance_current=promedio["symetrical_components"]["unbalance_current"],
-                                         ia1_amplitud=promedio["symetrical_components"]["ia1_amplitud"],
-                                         ia2_amplitud=promedio["symetrical_components"]["ia2_amplitud"],
-                                         ia1_fase=promedio["symetrical_components"]["ia1_fase"],
-                                         ia2_fase=promedio["symetrical_components"]["ia2_fase"],
-                                         )
-        obj_average.save()
+        try:
+            array = df.to_numpy()
+            promedio = data_avarage(array, electrical_result_fk)
+            obj_average = AverageMeasurement(test_electrical_result_fk=test_electrical_result,
+                                            ab=promedio["voltage"]["ab"],
+                                            bc=promedio["voltage"]["bc"],
+                                            ca=promedio["voltage"]["ca"],
+                                            avg=promedio["voltage"]["avg"],
+                                            value=promedio["voltage"]["value"],
+                                            unbalance=promedio["unbalance"],
+                                            thdv_a=promedio["distorsion"]["thdv_a"],
+                                            thdv_b=promedio["distorsion"]["thdv_b"],
+                                            thdv_c=promedio["distorsion"]["thdv_c"],
+                                            thdv_avg=promedio["distorsion"]["thdv_avg"],
+                                            thdi_a=promedio["distorsion"]["thdi_a"],
+                                            thdi_b=promedio["distorsion"]["thdi_b"],
+                                            thdi_c=promedio["distorsion"]["thdi_c"],
+                                            thdi_avg=promedio["distorsion"]["thdi_avg"],
+                                            tdv_a=promedio["full_distorsion"]["tdv_a"],
+                                            tdv_b=promedio["full_distorsion"]["tdv_b"],
+                                            tdv_c=promedio["full_distorsion"]["tdv_c"],
+                                            tdv_avg=promedio["full_distorsion"]["tdv_avg"],
+                                            tdi_a=promedio["full_distorsion"]["tdi_a"],
+                                            tdi_b=promedio["full_distorsion"]["tdi_b"],
+                                            tdi_c=promedio["full_distorsion"]["tdi_c"],
+                                            tdi_avg=promedio["full_distorsion"]["tdi_avg"],
+                                            current_a=promedio["current_level"]["current_a"],
+                                            current_b=promedio["current_level"]["current_b"],
+                                            current_c=promedio["current_level"]["current_c"],
+                                            current_avg=promedio["current_level"]["current_avg"],
+                                            current_nominal=promedio["current_level"]["current_nominal"],
+                                            current_unbalance=promedio["current_unbalance"],
+                                            load_percen_avg=promedio["efficiency"]["load_percen_avg"],
+                                            lsskw_avg=promedio["efficiency"]["lsskw_avg"],
+                                            eff_avg=promedio["efficiency"]["eff_avg"],
+                                            sideband_amplitud_db=promedio["spectrum"]["sideband_amplitud_db"],
+                                            sideband_freq_hz=promedio["spectrum"]["sideband_freq_hz"],
+                                            vab_fase=promedio["symetrical_components"]["vab_fase"],
+                                            vbc_fase=promedio["symetrical_components"]["vbc_fase"],
+                                            vca_fase=promedio["symetrical_components"]["vca_fase"],
+                                            unbalance_voltage=promedio["symetrical_components"]["unbalance_voltage"],
+                                            va1_amplitud=promedio["symetrical_components"]["va1_amplitud"],
+                                            va2_amplitud=promedio["symetrical_components"]["va2_amplitud"],
+                                            va1_fase=promedio["symetrical_components"]["va1_fase"],
+                                            va2_fase=promedio["symetrical_components"]["va2_fase"],
+                                            ia_fase=promedio["symetrical_components"]["ia_fase"],
+                                            ib_fase=promedio["symetrical_components"]["ib_fase"],
+                                            ic_fase=promedio["symetrical_components"]["ic_fase"],
+                                            unbalance_current=promedio["symetrical_components"]["unbalance_current"],
+                                            ia1_amplitud=promedio["symetrical_components"]["ia1_amplitud"],
+                                            ia2_amplitud=promedio["symetrical_components"]["ia2_amplitud"],
+                                            ia1_fase=promedio["symetrical_components"]["ia1_fase"],
+                                            ia2_fase=promedio["symetrical_components"]["ia2_fase"])
+            obj_average.save()
+        except:
+             test_electrical_result.delete()
+             print("Hubo un error al crear el objeto Measurements")
 
         split_array = np.array_split(array, number_cores)
         data_with_test = [(split_array[i], test_electrical_result)
                           for i in range(number_cores)]
-
-        with concurrent.futures.ThreadPoolExecutor(max_workers=number_cores) as executor:
-            executor.map(process_array, data_with_test)
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=number_cores) as executor:
+                executor.map(process_array, data_with_test)
+        except:
+            test_electrical_result.delete()
+            print("hubo un error al leer el excel")
 
         return Response(
             {"message": "Las mediciones E.R han sido creadas exitosamente"},
