@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (LoginView, LogoutView, UploadMeasurementsERView,
                     UploadMeasurementsTBView, CreateEngineView, DeleteEngineView,
                     DeleteTestERView, DeleteTestTBView, GetMeasurementsERView, GetUserList,
-                    GetEnginesUserView, EditEngineView, GetMeasurementsTBView)
+                    GetEnginesUserView, EditEngineView, GetMeasurementsTBView, AverageView)
 
 app_name = 'app'
 urlpatterns = [
@@ -17,6 +17,7 @@ urlpatterns = [
     path('api/get/users/', GetUserList.as_view(), name='user_list'),
     path('api/get/measurements/electrical_result/<int:test_er>/', GetMeasurementsERView.as_view(), name='get_measurement_er'),
     path('api/get/measurements/transient_boot/<int:test_tb>/', GetMeasurementsTBView.as_view(), name='get_measurement_tb'),
+    path('api/get/averagemeasurements/<int:test_er>/', AverageView.as_view(), name="popup_voltage"),
     path('api/create/engine/', CreateEngineView.as_view(), name='create_engine'),
     path('api/edit/engine/<int:pk>/', EditEngineView.as_view(), name='edit_engine')
 ]

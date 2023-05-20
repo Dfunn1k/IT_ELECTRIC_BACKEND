@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from .models import (MeasurementER, MeasurementTB, Engine, ElectricalResult, TestER,
-                     TestTB, TransientBoot)
+                     TestTB, TransientBoot, AverageMeasurement)
 
 
 class UserSerializer(serializers.ModelSerializer):
