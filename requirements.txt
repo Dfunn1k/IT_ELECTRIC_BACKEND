@@ -4,9 +4,13 @@ backports.zoneinfo==0.2.1
 defusedxml==0.7.1
 Django==4.2
 django-cors-headers==3.14.0
+django-pandas==0.6.6
 djangorestframework==3.14.0
 et-xmlfile==1.1.0
+importlib-metadata==6.6.0
+llvmlite==0.40.0
 mysqlclient==2.1.1
+numba==0.57.0
 numpy==1.24.2
 odfpy==1.4.1
 openpyxl==3.1.2
@@ -19,3 +23,4 @@ six==1.16.0
 sqlparse==0.4.3
 tomli==2.0.1
 tzdata==2023.3
+zipp==3.15.0
