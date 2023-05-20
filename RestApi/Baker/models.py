@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import F
 
 
 class Engine(models.Model):
@@ -335,7 +336,7 @@ class MeasurementER(models.Model):
     #     unique_together = ('test_electrical_result_fk', 'item')
 
     def __str__(self):
-        return f"Medicion RE pk:{self.measurement_electrical_result_pk} y test.pk:{self.test_electrical_result_fk}"
+        return {self.measurement_electrical_result_pk,self.ang_i1, self.ckwh_1}
 
 
 class MeasurementTB(models.Model):
@@ -352,3 +353,64 @@ class MeasurementTB(models.Model):
     #class Meta:
     #    unique_together = ('test_transient_boot_fk', 'item')
 
+class AverageMeasurement(models.Model):
+    average_measurement_pk = models.AutoField(primary_key=True)
+    test_electrical_result_fk = models.OneToOneField(TestER, on_delete=models.CASCADE)
+    #voltage
+    ab = models.FloatField()
+    bc = models.FloatField()
+    ca = models.FloatField()
+    avg = models.FloatField()
+    value = models.FloatField()
+    #unbalance
+    unbalance = models.FloatField()
+    #distorsion
+    thdv_a = models.FloatField()
+    thdv_b = models.FloatField()
+    thdv_c = models.FloatField()
+    thdv_avg = models.FloatField()
+    thdi_a = models.FloatField()
+    thdi_b = models.FloatField()
+    thdi_c = models.FloatField()
+    thdi_avg = models.FloatField()
+    #full_distorsion
+    tdv_a = models.FloatField()
+    tdv_b = models.FloatField()
+    tdv_c = models.FloatField()
+    tdv_avg = models.FloatField()
+    tdi_a = models.FloatField()
+    tdi_b = models.FloatField()
+    tdi_c = models.FloatField()
+    tdi_avg = models.FloatField()
+    #CurrentLevel
+    current_a = models.FloatField()
+    current_b = models.FloatField()
+    current_c = models.FloatField()
+    current_avg = models.FloatField()
+    current_nominal = models.FloatField()
+    #currentUnbalance
+    current_unbalance = models.FloatField()
+    #efficiency
+    load_percen_avg = models.FloatField()
+    lsskw_avg = models.FloatField()
+    eff_avg = models.FloatField()
+    #spectrum
+    sideband_amplitud_db = models.FloatField()
+    sideband_freq_hz = models.FloatField()
+    #symetrical components
+    vab_fase = models.FloatField()
+    vbc_fase = models.FloatField()
+    vca_fase = models.FloatField()
+    unbalance_voltage = models.FloatField()
+    va1_amplitud = models.FloatField()
+    va2_amplitud = models.FloatField()
+    va1_fase = models.FloatField()
+    va2_fase = models.FloatField()
+    ia_fase = models.FloatField()
+    ib_fase = models.FloatField()
+    ic_fase = models.FloatField()
+    unbalance_current = models.FloatField()
+    ia1_amplitud = models.FloatField()
+    ia2_amplitud = models.FloatField()
+    ia1_fase = models.FloatField()
+    ia2_fase = models.FloatField()
