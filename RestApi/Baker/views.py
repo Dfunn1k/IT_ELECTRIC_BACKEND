@@ -353,14 +353,15 @@ class AverageView(APIView):
         tests = TestER.objects.filter(
             electrical_result_fk__engine_fk=engine_pk)
         history = {}
-        for index, test in enumerate(tests, start=1):
+        for test in tests:
             value = AverageMeasurement.objects.get(
                 test_electrical_result_fk=test.pk)
-            history[index] = {
+            history[test.pk] = {
                 'value': value.value,
                 'fecha': test.test_date_time.strftime("%d/%m/%Y"),
                 'hora': test.test_date_time.strftime("%H:%M:%S"),
             }
+        
         gauge = {
             "minValue": 0,
             "maxValue": 120,
@@ -498,7 +499,7 @@ class AverageView(APIView):
                                 "fase": f"{promedio.vca_fase}°"
                             }
                         }],
-                    "section_mid": "35%",
+                    "section_mid": promedio.unbalance_voltage,
                     "section_right": [
                         {
                             "title": "VA1",
@@ -540,7 +541,23 @@ class AverageView(APIView):
                             }
                         }
                     ],
-                    "section_mid": "35%",
+                    "section_mid": promedio.unbalance_current,
+                    "section_right": [
+                        {
+                            "title": "IA1",
+                            "values": {
+                                "amplitud": promedio.ia1_amplitud,
+                                "fase": promedio.ia1_fase
+                            }
+                        },
+                        {
+                            "title": "IA2",
+                            "values": {
+                                "amplitud": promedio.ia2_amplitud,
+                                "fase": promedio.ia2_fase
+                            }
+                        }
+                    ]
                 }
 
             ]
