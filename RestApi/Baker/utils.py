@@ -591,7 +591,27 @@ def data_avarage(array, electrical_result_fk):
     v2_freq = np.mean(array[:,15])
     v3_freq = np.mean(array[:,16])
     sideband_freq_hz = (v1_freq + v2_freq + v3_freq)/3
-
+    #symetrical components
+    vab_fase = np.mean(array[:,5])
+    vbc_fase = np.mean(array[:,6])
+    vca_fase = np.mean(array[:,7])
+    u0_mag = np.mean(array[:,43])
+    u2_mag = np.mean(array[:,45])
+    unbalance_voltage = np.mean(u0_mag/u2_mag)
+    va1_amplitud = np.mean(array[:,44])
+    va2_amplitud = np.mean(array[:,45]) 
+    va1_fase = np.mean(array[:,47])
+    va2_fase = np.mean(array[:,48])
+    ia_fase = np.mean(array[:,11])
+    ib_fase = np.mean(array[:,12])
+    ic_fase = np.mean(array[:,13])
+    i0_mag = np.mean(array[:,49])
+    i2_mag = np.mean(array[:,51])
+    unbalance_current = np.mean(i0_mag/i2_mag)
+    ia1_amplitud = np.mean(array[:,50])
+    ia2_amplitud = np.mean(array[:,51])
+    ia1_fase = np.mean(array[:,53])
+    ia2_fase = np.mean(array[:54])
 
     # mag_i1=fila[8],
     # mag_i2=fila[9],
@@ -643,6 +663,24 @@ def data_avarage(array, electrical_result_fk):
         "spectrum": {
             "sideband_amplitud_db": sideband_amplitud_db,
             "sideband_freq_hz": sideband_freq_hz,
+        },
+        "symetrical_components": {
+            "vab_fase": vab_fase,
+            "vbc_fase": vbc_fase,
+            "vca_fase": vca_fase,
+            "unbalance_voltage": unbalance_voltage,
+            "va1_amplitud": va1_amplitud,
+            "va2_amplitud": va2_amplitud,   
+            "va1_fase": va1_fase,
+            "va2_fase": va2_fase,
+            "ia_fase": ia_fase,
+            "ib_fase": ib_fase,
+            "ic_fase": ic_fase,
+            "unbalance_current": unbalance_current,
+            "ia1_amplitud": ia1_amplitud,
+            "ia2_amplitud": ia2_amplitud,
+            "ia1_fase": ia1_fase,
+            "ia2_fase": ia2_fase
         }
     }
     return data
