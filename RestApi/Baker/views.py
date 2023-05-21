@@ -29,6 +29,7 @@ from .utils import create_objects, process_array, read_excel_chunk, data_avarage
 
 
 class GetUserList(ListAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -57,6 +58,7 @@ class LogoutView(APIView):
 
 
 class CreateEngineView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request, format=None):
         # Utilizar el JSONParser para procesar los datos en formato JSON
         parser = JSONParser()
@@ -78,6 +80,7 @@ class CreateEngineView(APIView):
 
 
 class GetEnginesUserView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, user_pk):
         engines = Engine.objects.filter(user__pk=user_pk)
         serializer = EngineSerializer(engines, many=True)
@@ -85,6 +88,7 @@ class GetEnginesUserView(APIView):
 
 
 class GetMeasurementsERView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, test_er):
         """Esta función obtiene los datos de las columnas mostradas, re"""
         measurements = MeasurementER.objects.filter(
@@ -103,6 +107,7 @@ class GetMeasurementsERView(APIView):
 
 
 class GetMeasurementsTBView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, test_tb):
         measurements = MeasurementTB.objects.filter(
             test_transient_boot_fk=test_tb)
@@ -296,6 +301,7 @@ class UploadMeasurementsTBView(APIView):
 
 
 class DeleteEngineView(APIView):
+    permission_classes = [IsAuthenticated]
     def delete(self, request, pk):
         try:
             engine = Engine.objects.get(pk=pk)
@@ -306,6 +312,7 @@ class DeleteEngineView(APIView):
 
 
 class EditEngineView(APIView):
+    permission_classes = [IsAuthenticated]
     def put(self, request, pk):
         engine = Engine.objects.get(pk=pk)
         serializer = EngineSerializer(engine, data=request.data)
@@ -324,6 +331,7 @@ class EditEngineView(APIView):
 
 
 class DeleteTestERView(APIView):
+    permission_classes = [IsAuthenticated]
     def delete(self, request, pk):
         try:
             test_electrical_result = TestER.objects.get(pk=pk)
@@ -334,6 +342,7 @@ class DeleteTestERView(APIView):
 
 
 class DeleteTestTBView(APIView):
+    permission_classes = [IsAuthenticated]
     def delete(self, request, pk):
         try:
             test_transient_boot = TestTB.objects.get(pk=pk)
@@ -344,6 +353,7 @@ class DeleteTestTBView(APIView):
 
 
 class AverageView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, test_er):
         test_er_obj = TestER.objects.get(pk=test_er)
         electrical_result_obj = test_er_obj.electrical_result_fk
