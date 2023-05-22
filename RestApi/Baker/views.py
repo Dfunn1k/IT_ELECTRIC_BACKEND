@@ -367,7 +367,7 @@ class AverageView(APIView):
             value = AverageMeasurement.objects.get(
                 test_electrical_result_fk=test.pk)
             history[test.pk] = {
-                'value': value.value,
+                'value': round(value.value, 2),
                 'fecha': test.test_date_time.strftime("%d/%m/%Y"),
                 'hora': test.test_date_time.strftime("%H:%M:%S"),
             }
@@ -375,29 +375,29 @@ class AverageView(APIView):
         gauge = {
             "minValue": 0,
             "maxValue": 120,
-            "value": promedio.value
+            "value": round(promedio.value, 2)
         }
 
         data = {
             "popupVoltage": {
                 "values": {
-                    "ab": promedio.ab,
-                    "bc": promedio.bc,
-                    "ca": promedio.ca,
-                    "avg": promedio.avg,
+                    "ab": round(promedio.ab, 2),
+                    "bc": round(promedio.bc, 2),
+                    "ca": round(promedio.ca, 2),
+                    "avg": round(promedio.avg, 2),
                     "rated": electrical_result_obj.engine_fk.voltage_rating,
-                    "value": promedio.value
+                    "value": round(promedio.value, 2)
                 },
                 "gauge": gauge,
                 "history": history
             },
             "popupUnbalance": {
                 "values": {
-                    "ab": promedio.ab,
-                    "bc": promedio.bc,
-                    "ca": promedio.ca,
-                    "avg": promedio.avg,
-                    "unbalance": promedio.unbalance,
+                    "ab": round(promedio.ab,2),
+                    "bc": round(promedio.bc,2 ),
+                    "ca": round(promedio.ca,2),
+                    "avg": round(promedio.avg,2),
+                    "unbalance": round(promedio.unbalance, 2),
                     "nemaDerating": electrical_result_obj.engine_fk.amps_rating,
                 },
                 "gauge": gauge,
@@ -405,42 +405,42 @@ class AverageView(APIView):
             },
             "popupDistorsion": {
                 "tdhv": {
-                    "a": promedio.thdv_a,
-                    "b": promedio.thdv_b,
-                    "c": promedio.thdv_c,
-                    "avg": promedio.thdv_avg,
+                    "a": round(promedio.thdv_a, 2),
+                    "b": round(promedio.thdv_b, 2),
+                    "c": round(promedio.thdv_c, 2),
+                    "avg": round(promedio.thdv_avg, 2),
                 },
                 "tdhi": {
-                    "a": promedio.thdi_a,
-                    "b": promedio.thdi_b,
-                    "c": promedio.thdi_c,
-                    "avg": promedio.thdi_avg
+                    "a": round(promedio.thdi_a, 2),
+                    "b": round(promedio.thdi_b, 2),
+                    "c": round(promedio.thdi_c, 2),
+                    "avg": round(promedio.thdi_avg, 2)
                 },
                 "history": history
             },
             "popupFullDistorsion": {
                 "tdv": {
-                    "a": promedio.tdv_a,
-                    "b": promedio.tdv_b,
-                    "c": promedio.tdv_c,
-                    "avg": promedio.tdv_avg
+                    "a": round(promedio.tdv_a, 2),
+                    "b": round(promedio.tdv_b, 2),
+                    "c": round(promedio.tdv_c, 2),
+                    "avg": round(promedio.tdv_avg, 2)
                 },
                 "tdi": {
-                    "a": promedio.tdi_a,
-                    "b": promedio.tdi_b,
-                    "c": promedio.tdi_c,
-                    "avg": promedio.tdi_avg
+                    "a": round(promedio.tdi_a, 2),
+                    "b": round(promedio.tdi_b, 2),
+                    "c": round(promedio.tdi_c, 2),
+                    "avg": round(promedio.tdi_avg, 2)
                 },
                 "gauge": gauge,
                 "history": history
             },
             "popupCurrentLevel": {
                 "values": {
-                    "a": promedio.current_a,
-                    "b": promedio.current_b,
-                    "c": promedio.current_c,
-                    "avg": promedio.current_avg,
-                    "nominalCurrent": promedio.current_nominal,
+                    "a": round(promedio.current_a,2),
+                    "b": round(promedio.current_b,2),
+                    "c": round(promedio.current_c,2),
+                    "avg": round(promedio.current_avg, 2),
+                    "nominalCurrent": round(promedio.current_nominal, 2),
                     "rated": electrical_result_obj.engine_fk.voltage_rating
                 },
                 "gauge": gauge,
@@ -448,11 +448,11 @@ class AverageView(APIView):
             },
             "popupCurrentUnbalance": {
                 "values": {
-                    "a": promedio.current_a,
-                    "b": promedio.current_b,
-                    "c": promedio.current_c,
-                    "avg": promedio.current_avg,
-                    "currentUnbalance": promedio.current_unbalance,
+                    "a": round(promedio.current_a, 2),
+                    "b": round(promedio.current_b, 2),
+                    "c": round(promedio.current_c, 2),
+                    "avg": round(promedio.current_avg, 2),
+                    "currentUnbalance": round(promedio.current_unbalance,2),
                     "rated": electrical_result_obj.engine_fk.voltage_rating
                 },
                 "gauge": gauge,
@@ -460,27 +460,27 @@ class AverageView(APIView):
             },
             "popupEfficiency": {
                 "values": {
-                    "load": promedio.load_percen_avg,
-                    "losses": promedio.lsskw_avg,
-                    "efficiency": promedio.eff_avg
+                    "load": round(promedio.load_percen_avg,2),
+                    "losses": round(promedio.lsskw_avg,2),
+                    "efficiency": round(promedio.eff_avg,2)
                 },
                 "gauge": gauge,
                 "history": history
             },
             "popupLoad": {
                 "values": {
-                    "efficiency": promedio.eff_avg,
+                    "efficiency": round(promedio.eff_avg, 2),
                     "speed": electrical_result_obj.engine_fk.speed_rpm,
                     "nemaDerating": electrical_result_obj.engine_fk.amps_rating,
-                    "load": promedio.load_percen_avg
+                    "load": round(promedio.load_percen_avg,2)
                 },
                 "gauge": gauge,
                 "history": history
             },
             "popupSpectrum": {
                 "values": {
-                    "sideAmplitude": promedio.sideband_amplitud_db,
-                    "sidebandFreq": promedio.sideband_freq_hz,
+                    "sideAmplitude": round(promedio.sideband_amplitud_db,2),
+                    "sidebandFreq": round(promedio.sideband_freq_hz,2),
                     "fundFreq": electrical_result_obj.engine_fk.freq_hz,
                 },
                 "history": history
@@ -491,38 +491,38 @@ class AverageView(APIView):
                         {
                             "title": 'Vab',
                             "values": {
-                                "amplitud": f"{promedio.ab} [V]",
-                                "fase": f"{promedio.vab_fase}°"
+                                "amplitud": f"{round(promedio.ab,2)} [V]",
+                                "fase": f"{round(promedio.vab_fase,2)}°"
                             }
                         },
                         {
                             "title": 'Vbc',
                             "values": {
-                                "amplitud": f"{promedio.bc} [V]",
-                                "fase": f"{promedio.vbc_fase}°"
+                                "amplitud": f"{round(promedio.bc,2)} [V]",
+                                "fase": f"{round(promedio.vbc_fase,2)}°"
                             }
                         },
                         {
                             "title": "Vca",
                             "values": {
-                                "amplitud": f"{promedio.ca} [V]",
-                                "fase": f"{promedio.vca_fase}°"
+                                "amplitud": f"{round(promedio.ca,2)} [V]",
+                                "fase": f"{round(promedio.vca_fase,2)}°"
                             }
                         }],
-                    "section_mid": promedio.unbalance_voltage,
+                    "section_mid": round(promedio.unbalance_voltage,2),
                     "section_right": [
                         {
                             "title": "VA1",
                             "values": {
-                                "amplitud": promedio.va1_amplitud,
-                                "fase": promedio.va1_fase
+                                "amplitud": round(promedio.va1_amplitud, 2),
+                                "fase": round(promedio.va1_fase, 2)
                             }
                         },
                         {
                             "title": "VA2",
                             "values": {
-                                "amplitud": promedio.va2_amplitud,
-                                "fase": promedio.va2_fase
+                                "amplitud": round(promedio.va2_amplitud, 2),
+                                "fase": round(promedio.va2_fase, 2)
                             }
                         }
                     ]
@@ -532,39 +532,39 @@ class AverageView(APIView):
                         {
                             "title": "IA",
                             "values": {
-                                "amplitud": f"{promedio.current_a} [I]",
-                                "fase": f"{promedio.ia_fase}°"
+                                "amplitud": f"{round(promedio.current_a, 2)} [I]",
+                                "fase": f"{round(promedio.ia_fase,2)}°"
                             }
                         },
                         {
                             "title": "IB",
                             "values": {
-                                "amplitud": f"{promedio.current_b} [I]",
-                                "fase": f"{promedio.ib_fase}°"
+                                "amplitud": f"{round(promedio.current_b,2)} [I]",
+                                "fase": f"{round(promedio.ib_fase, 2)}°"
                             }
                         },
                         {
                             "title": "IC",
                             "values": {
-                                "amplitud": f"{promedio.current_c} [I]",
-                                "fase": f"{promedio.ic_fase}°"
+                                "amplitud": f"{round(promedio.current_c,2)} [I]",
+                                "fase": f"{round(promedio.ic_fase,2)}°"
                             }
                         }
                     ],
-                    "section_mid": promedio.unbalance_current,
+                    "section_mid": round(promedio.unbalance_current, 2),
                     "section_right": [
                         {
                             "title": "IA1",
                             "values": {
-                                "amplitud": promedio.ia1_amplitud,
-                                "fase": promedio.ia1_fase
+                                "amplitud": round(promedio.ia1_amplitud, 2),
+                                "fase": round(promedio.ia1_fase, 2)
                             }
                         },
                         {
                             "title": "IA2",
                             "values": {
-                                "amplitud": promedio.ia2_amplitud,
-                                "fase": promedio.ia2_fase
+                                "amplitud": round(promedio.ia2_amplitud, 2),
+                                "fase": round(promedio.ia2_fase, 2)
                             }
                         }
                     ]
@@ -575,3 +575,36 @@ class AverageView(APIView):
         }
 
         return Response(data)
+
+class MainView(APIView):
+        permission_classes = [IsAuthenticated]
+        def get(self, request, test_er):
+            test_er_obj = TestER.objects.get(pk=test_er)
+            electrical_result_obj = test_er_obj.electrical_result_fk
+            engine_pk = electrical_result_obj.engine_fk.pk
+            promedio = AverageMeasurement.objects.get(
+                test_electrical_result_fk=test_er)
+            tests = TestER.objects.filter(
+                electrical_result_fk__engine_fk=engine_pk)
+            
+            data = {
+                "engine": {
+                    "name": electrical_result_obj.engine_fk.name,
+                    "voltage": f"{electrical_result_obj.engine_fk.voltage_rating} [V]",
+                    "current": f"{electrical_result_obj.engine_fk.amps_rating} [A]",
+                    "kW": f"{electrical_result_obj.engine_fk.power_out_kw} [kW]",
+                    "RPM": f"{electrical_result_obj.engine_fk.speed_rpm} [RPM]",
+                },
+                "Voltage": round(promedio.avg, 2),
+                "Current": round(promedio.current_avg, 2),
+                "FP": 0.81,#miss
+                "Unbalance V": round(promedio.unbalance_voltage, 2),
+                "Unbalance I": round(promedio.current_unbalance, 2),
+                "Frequence": electrical_result_obj.engine_fk.freq_hz,
+                "Efficiency": round(promedio.eff_avg, 2),
+                "Par": 620.80,#miss
+                "Load": round(promedio.load_percen_avg, 2),
+                "load_kW": 115.7, #miss 
+                "Speed": round(electrical_result_obj.engine_fk.speed_rpm, 2)
+            }
+            return Response(data)
