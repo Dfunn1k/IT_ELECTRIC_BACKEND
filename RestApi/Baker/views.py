@@ -59,6 +59,7 @@ class LogoutView(APIView):
 
 class CreateEngineView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request, format=None):
         # Utilizar el JSONParser para procesar los datos en formato JSON
         parser = JSONParser()
@@ -81,6 +82,7 @@ class CreateEngineView(APIView):
 
 class GetEnginesUserView(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request, user_pk):
         engines = Engine.objects.filter(user__pk=user_pk)
         serializer = EngineSerializer(engines, many=True)
@@ -89,6 +91,7 @@ class GetEnginesUserView(APIView):
 
 class GetMeasurementsERView(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request, test_er):
         """Esta función obtiene los datos de las columnas mostradas, re"""
         measurements = MeasurementER.objects.filter(
@@ -96,29 +99,30 @@ class GetMeasurementsERView(APIView):
         data = {
             # 'item': list(mediciones.values_list('item', flat=True)),
             'time': list(measurements.values_list('time', flat=True)),
-            'mag_v1': list(measurements.values_list('mag_v1', flat=True)),
-            'mag_v2': list(measurements.values_list('mag_v2', flat=True)),
-            'mag_v3': list(measurements.values_list('mag_v3', flat=True)),
-            'mag_i1': list(measurements.values_list('mag_i1', flat=True)),
-            'mag_i2': list(measurements.values_list('mag_i2', flat=True)),
-            'mag_i3': list(measurements.values_list('mag_i3', flat=True))
+            'mag_v1': list(map(lambda x: round(x, 2), measurements.values_list('mag_v1', flat=True))),
+            'mag_v2': list(map(lambda x: round(x, 2), measurements.values_list('mag_v2', flat=True))),
+            'mag_v3': list(map(lambda x: round(x, 2), measurements.values_list('mag_v3', flat=True))),
+            'mag_i1': list(map(lambda x: round(x, 2), measurements.values_list('mag_i1', flat=True))),
+            'mag_i2': list(map(lambda x: round(x, 2), measurements.values_list('mag_i2', flat=True))),
+            'mag_i3': list(map(lambda x: round(x, 2), measurements.values_list('mag_i3', flat=True)))
         }
         return Response(data)
 
 
 class GetMeasurementsTBView(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request, test_tb):
         measurements = MeasurementTB.objects.filter(
             test_transient_boot_fk=test_tb)
         data = {
-            'time': list(measurements.values_list('time', flat=True)),
-            'ia': list(measurements.values_list('ia', flat=True)),
-            'ib': list(measurements.values_list('ib', flat=True)),
-            'ic': list(measurements.values_list('ic', flat=True)),
-            'va': list(measurements.values_list('va', flat=True)),
-            'vb': list(measurements.values_list('vb', flat=True)),
-            'vc': list(measurements.values_list('vc', flat=True))
+            'time': list(map(lambda x: round(x, 2), measurements.values_list('time', flat=True))),
+            'ia': list(map(lambda x: round(x, 2), measurements.values_list('ia', flat=True))),
+            'ib': list(map(lambda x: round(x, 2), measurements.values_list('ib', flat=True))),
+            'ic': list(map(lambda x: round(x, 2), measurements.values_list('ic', flat=True))),
+            'va': list(map(lambda x: round(x, 2), measurements.values_list('va', flat=True))),
+            'vb': list(map(lambda x: round(x, 2), measurements.values_list('vb', flat=True))),
+            'vc': list(map(lambda x: round(x, 2), measurements.values_list('vc', flat=True)))
         }
         return Response(data)
 
@@ -173,59 +177,59 @@ class UploadMeasurementsERView(APIView):
             array = df.to_numpy()
             promedio = data_avarage(array, electrical_result_fk)
             obj_average = AverageMeasurement(test_electrical_result_fk=test_electrical_result,
-                                            ab=promedio["voltage"]["ab"],
-                                            bc=promedio["voltage"]["bc"],
-                                            ca=promedio["voltage"]["ca"],
-                                            avg=promedio["voltage"]["avg"],
-                                            value=promedio["voltage"]["value"],
-                                            unbalance=promedio["unbalance"],
-                                            thdv_a=promedio["distorsion"]["thdv_a"],
-                                            thdv_b=promedio["distorsion"]["thdv_b"],
-                                            thdv_c=promedio["distorsion"]["thdv_c"],
-                                            thdv_avg=promedio["distorsion"]["thdv_avg"],
-                                            thdi_a=promedio["distorsion"]["thdi_a"],
-                                            thdi_b=promedio["distorsion"]["thdi_b"],
-                                            thdi_c=promedio["distorsion"]["thdi_c"],
-                                            thdi_avg=promedio["distorsion"]["thdi_avg"],
-                                            tdv_a=promedio["full_distorsion"]["tdv_a"],
-                                            tdv_b=promedio["full_distorsion"]["tdv_b"],
-                                            tdv_c=promedio["full_distorsion"]["tdv_c"],
-                                            tdv_avg=promedio["full_distorsion"]["tdv_avg"],
-                                            tdi_a=promedio["full_distorsion"]["tdi_a"],
-                                            tdi_b=promedio["full_distorsion"]["tdi_b"],
-                                            tdi_c=promedio["full_distorsion"]["tdi_c"],
-                                            tdi_avg=promedio["full_distorsion"]["tdi_avg"],
-                                            current_a=promedio["current_level"]["current_a"],
-                                            current_b=promedio["current_level"]["current_b"],
-                                            current_c=promedio["current_level"]["current_c"],
-                                            current_avg=promedio["current_level"]["current_avg"],
-                                            current_nominal=promedio["current_level"]["current_nominal"],
-                                            current_unbalance=promedio["current_unbalance"],
-                                            load_percen_avg=promedio["efficiency"]["load_percen_avg"],
-                                            lsskw_avg=promedio["efficiency"]["lsskw_avg"],
-                                            eff_avg=promedio["efficiency"]["eff_avg"],
-                                            sideband_amplitud_db=promedio["spectrum"]["sideband_amplitud_db"],
-                                            sideband_freq_hz=promedio["spectrum"]["sideband_freq_hz"],
-                                            vab_fase=promedio["symetrical_components"]["vab_fase"],
-                                            vbc_fase=promedio["symetrical_components"]["vbc_fase"],
-                                            vca_fase=promedio["symetrical_components"]["vca_fase"],
-                                            unbalance_voltage=promedio["symetrical_components"]["unbalance_voltage"],
-                                            va1_amplitud=promedio["symetrical_components"]["va1_amplitud"],
-                                            va2_amplitud=promedio["symetrical_components"]["va2_amplitud"],
-                                            va1_fase=promedio["symetrical_components"]["va1_fase"],
-                                            va2_fase=promedio["symetrical_components"]["va2_fase"],
-                                            ia_fase=promedio["symetrical_components"]["ia_fase"],
-                                            ib_fase=promedio["symetrical_components"]["ib_fase"],
-                                            ic_fase=promedio["symetrical_components"]["ic_fase"],
-                                            unbalance_current=promedio["symetrical_components"]["unbalance_current"],
-                                            ia1_amplitud=promedio["symetrical_components"]["ia1_amplitud"],
-                                            ia2_amplitud=promedio["symetrical_components"]["ia2_amplitud"],
-                                            ia1_fase=promedio["symetrical_components"]["ia1_fase"],
-                                            ia2_fase=promedio["symetrical_components"]["ia2_fase"])
+                                             ab=promedio["voltage"]["ab"],
+                                             bc=promedio["voltage"]["bc"],
+                                             ca=promedio["voltage"]["ca"],
+                                             avg=promedio["voltage"]["avg"],
+                                             value=promedio["voltage"]["value"],
+                                             unbalance=promedio["unbalance"],
+                                             thdv_a=promedio["distorsion"]["thdv_a"],
+                                             thdv_b=promedio["distorsion"]["thdv_b"],
+                                             thdv_c=promedio["distorsion"]["thdv_c"],
+                                             thdv_avg=promedio["distorsion"]["thdv_avg"],
+                                             thdi_a=promedio["distorsion"]["thdi_a"],
+                                             thdi_b=promedio["distorsion"]["thdi_b"],
+                                             thdi_c=promedio["distorsion"]["thdi_c"],
+                                             thdi_avg=promedio["distorsion"]["thdi_avg"],
+                                             tdv_a=promedio["full_distorsion"]["tdv_a"],
+                                             tdv_b=promedio["full_distorsion"]["tdv_b"],
+                                             tdv_c=promedio["full_distorsion"]["tdv_c"],
+                                             tdv_avg=promedio["full_distorsion"]["tdv_avg"],
+                                             tdi_a=promedio["full_distorsion"]["tdi_a"],
+                                             tdi_b=promedio["full_distorsion"]["tdi_b"],
+                                             tdi_c=promedio["full_distorsion"]["tdi_c"],
+                                             tdi_avg=promedio["full_distorsion"]["tdi_avg"],
+                                             current_a=promedio["current_level"]["current_a"],
+                                             current_b=promedio["current_level"]["current_b"],
+                                             current_c=promedio["current_level"]["current_c"],
+                                             current_avg=promedio["current_level"]["current_avg"],
+                                             current_nominal=promedio["current_level"]["current_nominal"],
+                                             current_unbalance=promedio["current_unbalance"],
+                                             load_percen_avg=promedio["efficiency"]["load_percen_avg"],
+                                             lsskw_avg=promedio["efficiency"]["lsskw_avg"],
+                                             eff_avg=promedio["efficiency"]["eff_avg"],
+                                             sideband_amplitud_db=promedio["spectrum"]["sideband_amplitud_db"],
+                                             sideband_freq_hz=promedio["spectrum"]["sideband_freq_hz"],
+                                             vab_fase=promedio["symetrical_components"]["vab_fase"],
+                                             vbc_fase=promedio["symetrical_components"]["vbc_fase"],
+                                             vca_fase=promedio["symetrical_components"]["vca_fase"],
+                                             unbalance_voltage=promedio["symetrical_components"]["unbalance_voltage"],
+                                             va1_amplitud=promedio["symetrical_components"]["va1_amplitud"],
+                                             va2_amplitud=promedio["symetrical_components"]["va2_amplitud"],
+                                             va1_fase=promedio["symetrical_components"]["va1_fase"],
+                                             va2_fase=promedio["symetrical_components"]["va2_fase"],
+                                             ia_fase=promedio["symetrical_components"]["ia_fase"],
+                                             ib_fase=promedio["symetrical_components"]["ib_fase"],
+                                             ic_fase=promedio["symetrical_components"]["ic_fase"],
+                                             unbalance_current=promedio["symetrical_components"]["unbalance_current"],
+                                             ia1_amplitud=promedio["symetrical_components"]["ia1_amplitud"],
+                                             ia2_amplitud=promedio["symetrical_components"]["ia2_amplitud"],
+                                             ia1_fase=promedio["symetrical_components"]["ia1_fase"],
+                                             ia2_fase=promedio["symetrical_components"]["ia2_fase"])
             obj_average.save()
         except:
-             test_electrical_result.delete()
-             print("Hubo un error al crear el objeto Measurements")
+            test_electrical_result.delete()
+            print("Hubo un error al crear el objeto Measurements")
 
         split_array = np.array_split(array, number_cores)
         data_with_test = [(split_array[i], test_electrical_result)
@@ -302,6 +306,7 @@ class UploadMeasurementsTBView(APIView):
 
 class DeleteEngineView(APIView):
     permission_classes = [IsAuthenticated]
+
     def delete(self, request, pk):
         try:
             engine = Engine.objects.get(pk=pk)
@@ -313,6 +318,7 @@ class DeleteEngineView(APIView):
 
 class EditEngineView(APIView):
     permission_classes = [IsAuthenticated]
+
     def put(self, request, pk):
         engine = Engine.objects.get(pk=pk)
         serializer = EngineSerializer(engine, data=request.data)
@@ -332,6 +338,7 @@ class EditEngineView(APIView):
 
 class DeleteTestERView(APIView):
     permission_classes = [IsAuthenticated]
+
     def delete(self, request, pk):
         try:
             test_electrical_result = TestER.objects.get(pk=pk)
@@ -343,6 +350,7 @@ class DeleteTestERView(APIView):
 
 class DeleteTestTBView(APIView):
     permission_classes = [IsAuthenticated]
+
     def delete(self, request, pk):
         try:
             test_transient_boot = TestTB.objects.get(pk=pk)
@@ -354,6 +362,7 @@ class DeleteTestTBView(APIView):
 
 class AverageView(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request, test_er):
         test_er_obj = TestER.objects.get(pk=test_er)
         electrical_result_obj = test_er_obj.electrical_result_fk
@@ -371,7 +380,7 @@ class AverageView(APIView):
                 'fecha': test.test_date_time.strftime("%d/%m/%Y"),
                 'hora': test.test_date_time.strftime("%H:%M:%S"),
             }
-        
+
         gauge = {
             "minValue": 0,
             "maxValue": 120,
@@ -393,10 +402,10 @@ class AverageView(APIView):
             },
             "popupUnbalance": {
                 "values": {
-                    "ab": round(promedio.ab,2),
-                    "bc": round(promedio.bc,2 ),
-                    "ca": round(promedio.ca,2),
-                    "avg": round(promedio.avg,2),
+                    "ab": round(promedio.ab, 2),
+                    "bc": round(promedio.bc, 2),
+                    "ca": round(promedio.ca, 2),
+                    "avg": round(promedio.avg, 2),
                     "unbalance": round(promedio.unbalance, 2),
                     "nemaDerating": electrical_result_obj.engine_fk.amps_rating,
                 },
@@ -436,9 +445,9 @@ class AverageView(APIView):
             },
             "popupCurrentLevel": {
                 "values": {
-                    "a": round(promedio.current_a,2),
-                    "b": round(promedio.current_b,2),
-                    "c": round(promedio.current_c,2),
+                    "a": round(promedio.current_a, 2),
+                    "b": round(promedio.current_b, 2),
+                    "c": round(promedio.current_c, 2),
                     "avg": round(promedio.current_avg, 2),
                     "nominalCurrent": round(promedio.current_nominal, 2),
                     "rated": electrical_result_obj.engine_fk.voltage_rating
@@ -452,7 +461,7 @@ class AverageView(APIView):
                     "b": round(promedio.current_b, 2),
                     "c": round(promedio.current_c, 2),
                     "avg": round(promedio.current_avg, 2),
-                    "currentUnbalance": round(promedio.current_unbalance,2),
+                    "currentUnbalance": round(promedio.current_unbalance, 2),
                     "rated": electrical_result_obj.engine_fk.voltage_rating
                 },
                 "gauge": gauge,
@@ -460,9 +469,9 @@ class AverageView(APIView):
             },
             "popupEfficiency": {
                 "values": {
-                    "load": round(promedio.load_percen_avg,2),
-                    "losses": round(promedio.lsskw_avg,2),
-                    "efficiency": round(promedio.eff_avg,2)
+                    "load": round(promedio.load_percen_avg, 2),
+                    "losses": round(promedio.lsskw_avg, 2),
+                    "efficiency": round(promedio.eff_avg, 2)
                 },
                 "gauge": gauge,
                 "history": history
@@ -472,15 +481,15 @@ class AverageView(APIView):
                     "efficiency": round(promedio.eff_avg, 2),
                     "speed": electrical_result_obj.engine_fk.speed_rpm,
                     "nemaDerating": electrical_result_obj.engine_fk.amps_rating,
-                    "load": round(promedio.load_percen_avg,2)
+                    "load": round(promedio.load_percen_avg, 2)
                 },
                 "gauge": gauge,
                 "history": history
             },
             "popupSpectrum": {
                 "values": {
-                    "sideAmplitude": round(promedio.sideband_amplitud_db,2),
-                    "sidebandFreq": round(promedio.sideband_freq_hz,2),
+                    "sideAmplitude": round(promedio.sideband_amplitud_db, 2),
+                    "sidebandFreq": round(promedio.sideband_freq_hz, 2),
                     "fundFreq": electrical_result_obj.engine_fk.freq_hz,
                 },
                 "history": history
@@ -509,7 +518,7 @@ class AverageView(APIView):
                                 "fase": f"{round(promedio.vca_fase,2)}°"
                             }
                         }],
-                    "section_mid": round(promedio.unbalance_voltage,2),
+                    "section_mid": round(promedio.unbalance_voltage, 2),
                     "section_right": [
                         {
                             "title": "VA1",
@@ -569,42 +578,42 @@ class AverageView(APIView):
                         }
                     ]
                 }
-
             ]
-
         }
 
         return Response(data)
 
+
 class MainView(APIView):
-        permission_classes = [IsAuthenticated]
-        def get(self, request, test_er):
-            test_er_obj = TestER.objects.get(pk=test_er)
-            electrical_result_obj = test_er_obj.electrical_result_fk
-            engine_pk = electrical_result_obj.engine_fk.pk
-            promedio = AverageMeasurement.objects.get(
-                test_electrical_result_fk=test_er)
-            tests = TestER.objects.filter(
-                electrical_result_fk__engine_fk=engine_pk)
-            
-            data = {
-                "engine": {
-                    "name": electrical_result_obj.engine_fk.name,
-                    "voltage": f"{electrical_result_obj.engine_fk.voltage_rating} [V]",
-                    "current": f"{electrical_result_obj.engine_fk.amps_rating} [A]",
-                    "kW": f"{electrical_result_obj.engine_fk.power_out_kw} [kW]",
-                    "RPM": f"{electrical_result_obj.engine_fk.speed_rpm} [RPM]",
-                },
-                "Voltage": round(promedio.avg, 2),
-                "Current": round(promedio.current_avg, 2),
-                "FP": 0.81,#miss
-                "Unbalance V": round(promedio.unbalance_voltage, 2),
-                "Unbalance I": round(promedio.current_unbalance, 2),
-                "Frequence": electrical_result_obj.engine_fk.freq_hz,
-                "Efficiency": round(promedio.eff_avg, 2),
-                "Par": 620.80,#miss
-                "Load": round(promedio.load_percen_avg, 2),
-                "load_kW": 115.7, #miss 
-                "Speed": round(electrical_result_obj.engine_fk.speed_rpm, 2)
-            }
-            return Response(data)
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, test_er):
+        test_er_obj = TestER.objects.get(pk=test_er)
+        electrical_result_obj = test_er_obj.electrical_result_fk
+        engine_pk = electrical_result_obj.engine_fk.pk
+        promedio = AverageMeasurement.objects.get(
+            test_electrical_result_fk=test_er)
+        tests = TestER.objects.filter(
+            electrical_result_fk__engine_fk=engine_pk)
+
+        data = {
+            "engine": {
+                "name": electrical_result_obj.engine_fk.name,
+                "voltage": f"{electrical_result_obj.engine_fk.voltage_rating}",
+                "current": f"{electrical_result_obj.engine_fk.amps_rating}",
+                "kW": f"{electrical_result_obj.engine_fk.power_out_kw}",
+                "RPM": f"{electrical_result_obj.engine_fk.speed_rpm}",
+            },
+            "Voltage": round(promedio.avg, 2),
+            "Current": round(promedio.current_avg, 2),
+            "FP": 0.81,  # miss
+            "Unbalance_V": round(promedio.unbalance_voltage, 2),
+            "Unbalance_I": round(promedio.current_unbalance, 2),
+            "Frequence": electrical_result_obj.engine_fk.freq_hz,
+            "Efficiency": round(promedio.eff_avg, 2),
+            "Torque": 620.80,  # miss
+            "Load": round(promedio.load_percen_avg, 2),
+            "load_kW": 115.7,  # miss
+            "Speed": round(electrical_result_obj.engine_fk.speed_rpm, 2)
+        }
+        return Response(data)
