@@ -115,13 +115,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-pe'
 
 TIME_ZONE = 'America/Lima'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -143,5 +143,6 @@ REST_FRAMEWORK = {
 
 CORS_ALLOWED_ORIGINS = ['http://localhost:4200']
 
-#evadir zona horaria ingena 
-warnings.filterwarnings('ignore', r"DateTimeField .* received a naive datetime", RuntimeWarning, r'django\.db\.models\.fields')
+# evadir zona horaria ingena
+warnings.filterwarnings('ignore', r"DateTimeField .* received a naive datetime",
+                        RuntimeWarning, r'django\.db\.models\.fields')

@@ -6,8 +6,8 @@ from django.db.models import F
 
 class Engine(models.Model):
     engine_pk = models.AutoField(primary_key=True)
-    #no deber ser unique -> 2 usuarios pueden crear un motod llamado "motor A", to do✅
-    name = models.CharField(max_length=100, unique=True)
+    # no deber ser unique -> 2 usuarios pueden crear un motod llamado "motor A", to do✅
+    name = models.CharField(max_length=100)
     power_out_hp = models.FloatField()
     power_out_kw = models.FloatField()
     voltage_rating = models.FloatField()
@@ -20,6 +20,7 @@ class Engine(models.Model):
     locked_rotor_code = models.FloatField()
     freq_hz = models.FloatField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
     def save(self, *args, **kwargs):
         # Si el objeto no tiene un id, entonces es nuevo y se está creando
         if not self.pk:
@@ -33,11 +34,13 @@ class Engine(models.Model):
 
 class ElectricalResult(models.Model):
     electrical_result_pk = models.AutoField(primary_key=True)
-    engine_fk = models.ForeignKey(Engine, on_delete=models.CASCADE)
+    engine_fk = models.OneToOneField(Engine, on_delete=models.CASCADE)
+
 
 class TransientBoot(models.Model):
     transient_boot_pk = models.AutoField(primary_key=True)
-    engine_fk = models.ForeignKey(Engine, on_delete=models.CASCADE)
+    engine_fk = models.OneToOneField(Engine, on_delete=models.CASCADE)
+
 
 class TestER(models.Model):
     test_electrical_result_pk = models.AutoField(primary_key=True)
@@ -46,10 +49,12 @@ class TestER(models.Model):
     test_date_time = models.DateTimeField()
 
     def save(self, *args, **kwargs):
-        if TestER.objects.filter(electrical_result_fk=self.electrical_result_fk,test_date_time=self.test_date_time).exists():
-            raise ValidationError("Ya existe un archivo con la misma fecha para este TestRE")
+        if TestER.objects.filter(electrical_result_fk=self.electrical_result_fk, test_date_time=self.test_date_time).exists():
+            raise ValidationError(
+                "Ya existe un archivo con la misma fecha para este TestRE")
         else:
             super().save(*args, **kwargs)
+
 
 class TestTB(models.Model):
     test_transient_boot_pk = models.AutoField(primary_key=True)
@@ -58,21 +63,24 @@ class TestTB(models.Model):
     test_date_time = models.DateTimeField()
 
     def save(self, *args, **kwargs):
-        if TestTB.objects.filter(transient_boot_fk=self.transient_boot_fk,test_date_time=self.test_date_time).exists():
-            raise ValidationError("Ya existe un archivo con la misma fecha para este TestTA")
+        if TestTB.objects.filter(transient_boot_fk=self.transient_boot_fk, test_date_time=self.test_date_time).exists():
+            raise ValidationError(
+                "Ya existe un archivo con la misma fecha para este TestTA")
         else:
             super().save(*args, **kwargs)
 
+
 class MeasurementER(models.Model):
     measurement_electrical_result_pk = models.AutoField(primary_key=True)
-    test_electrical_result_fk = models.ForeignKey(TestER, on_delete=models.CASCADE)
-    #item = models.IntegerField()
+    test_electrical_result_fk = models.ForeignKey(
+        TestER, on_delete=models.CASCADE)
+    # item = models.IntegerField()
     time = models.DateTimeField()
-    
+
     mag_v1 = models.FloatField()
     mag_v2 = models.FloatField()
     mag_v3 = models.FloatField()
-    
+
     ang_v1 = models.FloatField()
     ang_v2 = models.FloatField()
     ang_v3 = models.FloatField()
@@ -335,13 +343,16 @@ class MeasurementER(models.Model):
     #     unique_together = ('test_electrical_result_fk', 'item')
 
     def __str__(self):
-        return {self.measurement_electrical_result_pk,self.ang_i1, self.ckwh_1}
+        attrs = ', '.join(f'{attr}={value}' for attr,
+                          value in vars(self).items())
+        return f"MeasurementER({attrs})"
 
 
 class MeasurementTB(models.Model):
     measurement_transient_boot_pk = models.AutoField(primary_key=True)
-    test_transient_boot_fk = models.ForeignKey(TestTB, on_delete=models.CASCADE)
-    #item = models.IntegerField()
+    test_transient_boot_fk = models.ForeignKey(
+        TestTB, on_delete=models.CASCADE)
+    # item = models.IntegerField()
     time = models.FloatField()
     ia = models.FloatField()
     ib = models.FloatField()
@@ -349,21 +360,23 @@ class MeasurementTB(models.Model):
     va = models.FloatField()
     vb = models.FloatField()
     vc = models.FloatField()
-    #class Meta:
+    # class Meta:
     #    unique_together = ('test_transient_boot_fk', 'item')
+
 
 class AverageMeasurement(models.Model):
     average_measurement_pk = models.AutoField(primary_key=True)
-    test_electrical_result_fk = models.OneToOneField(TestER, on_delete=models.CASCADE)
-    #voltage
+    test_electrical_result_fk = models.OneToOneField(
+        TestER, on_delete=models.CASCADE)
+    # voltage
     ab = models.FloatField()
     bc = models.FloatField()
     ca = models.FloatField()
     avg = models.FloatField()
     value = models.FloatField()
-    #unbalance
+    # unbalance
     unbalance = models.FloatField()
-    #distorsion
+    # distorsion
     thdv_a = models.FloatField()
     thdv_b = models.FloatField()
     thdv_c = models.FloatField()
@@ -372,7 +385,7 @@ class AverageMeasurement(models.Model):
     thdi_b = models.FloatField()
     thdi_c = models.FloatField()
     thdi_avg = models.FloatField()
-    #full_distorsion
+    # full_distorsion
     tdv_a = models.FloatField()
     tdv_b = models.FloatField()
     tdv_c = models.FloatField()
@@ -381,22 +394,22 @@ class AverageMeasurement(models.Model):
     tdi_b = models.FloatField()
     tdi_c = models.FloatField()
     tdi_avg = models.FloatField()
-    #CurrentLevel
+    # CurrentLevel
     current_a = models.FloatField()
     current_b = models.FloatField()
     current_c = models.FloatField()
     current_avg = models.FloatField()
     current_nominal = models.FloatField()
-    #currentUnbalance
+    # currentUnbalance
     current_unbalance = models.FloatField()
-    #efficiency
+    # efficiency
     load_percen_avg = models.FloatField()
     lsskw_avg = models.FloatField()
     eff_avg = models.FloatField()
-    #spectrum
+    # spectrum
     sideband_amplitud_db = models.FloatField()
     sideband_freq_hz = models.FloatField()
-    #symetrical components
+    # symetrical components
     vab_fase = models.FloatField()
     vbc_fase = models.FloatField()
     vca_fase = models.FloatField()
@@ -413,3 +426,22 @@ class AverageMeasurement(models.Model):
     ia2_amplitud = models.FloatField()
     ia1_fase = models.FloatField()
     ia2_fase = models.FloatField()
+    # energia
+    kw_a = models.FloatField()
+    kw_b = models.FloatField()
+    kw_c = models.FloatField()
+    kw_avg = models.FloatField()
+    kvar_a = models.FloatField()
+    kvar_b = models.FloatField()
+    kvar_c = models.FloatField()
+    kvar_avg = models.FloatField()
+    kva_a = models.FloatField()
+    kva_b = models.FloatField()
+    kva_c = models.FloatField()
+    kva_avg = models.FloatField()
+    pf_a = models.FloatField()
+    pf_b = models.FloatField()
+    pf_c = models.FloatField()
+    pf_avg = models.FloatField()
+    #
+    torque = models.FloatField()
