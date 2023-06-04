@@ -263,14 +263,14 @@ def data_vectorized(fila, test):
     if isinstance(test, TestTB):
         try:
             objeto = MeasurementTB(test_transient_boot_fk=test,
-                                   time=fila[1],
-                                   ia=fila[2],
-                                   ib=fila[3],
-                                   ic=fila[4],
-                                   va=fila[5],
-                                   vb=fila[6],
-                                   vc=fila[7])
-            objeto.full_clean()
+                                   time=fila[0],
+                                   ia=fila[1],
+                                   ib=fila[2],
+                                   ic=fila[3],
+                                   va=fila[4],
+                                   vb=fila[5],
+                                   vc=fila[6])
+            # objeto.full_clean()
             return objeto
         except:
             return
