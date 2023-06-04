@@ -19,8 +19,12 @@ class TestERSerializer(serializers.ModelSerializer):
 
 
 class ElectricalResultSerializer(serializers.ModelSerializer):
-    test_electrical_result = TestERSerializer(
-        many=True, read_only=True, source='tester_set')
+    test_electrical_result = serializers.SerializerMethodField()
+
+    def get_test_electrical_result(self, obj):
+        tests = TestER.objects.filter(electrical_result_fk=obj)
+        serializer = TestERSerializer(tests, many=True)
+        return serializer.data
 
     class Meta:
         model = ElectricalResult
@@ -36,8 +40,12 @@ class TestTBSerializer(serializers.ModelSerializer):
 
 
 class TransientBootSerializer(serializers.ModelSerializer):
-    test_transient_boot = TestTBSerializer(
-        many=True, read_only=True, source='testtb_set')
+    test_transient_boot = serializers.SerializerMethodField()
+
+    def get_test_transient_boot(self, obj):
+        tests = TestTB.objects.filter(transient_boot_fk=obj)
+        serializer = TestTBSerializer(tests, many=True)
+        return serializer.data
 
     class Meta:
         model = TransientBoot
@@ -45,8 +53,10 @@ class TransientBootSerializer(serializers.ModelSerializer):
 
 
 class EngineSerializer(serializers.ModelSerializer):
-    electrical_result = ElectricalResultSerializer(read_only=True)
-    transient_boot = TransientBootSerializer(read_only=True)
+    electrical_result = ElectricalResultSerializer(
+        read_only=True, source='electricalresult')
+    transient_boot = TransientBootSerializer(
+        read_only=True, source='transientboot')
 
     class Meta:
         model = Engine
@@ -81,7 +91,6 @@ class EngineSerializer(serializers.ModelSerializer):
             "electrical_result_pk": electrical_result_data["electrical_result_pk"],
             "transient_boot_pk": transient_boot_data["transient_boot_pk"]
         }
-
         return response_data
 
 

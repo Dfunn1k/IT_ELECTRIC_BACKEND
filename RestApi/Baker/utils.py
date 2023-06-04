@@ -503,11 +503,13 @@ def data_avarage(array, electrical_result_fk):
             "ia2_fase": ia2_fase
         }
     }
+    print(data)
     return data
 
 
 def create_average(promedio, test_electrical_result):
     try:
+        print(test_electrical_result)
         obj_average = AverageMeasurement(test_electrical_result_fk=test_electrical_result,
                                          ab=promedio["voltage"]["ab"],
                                          bc=promedio["voltage"]["bc"],
@@ -558,27 +560,29 @@ def create_average(promedio, test_electrical_result):
                                          ia2_amplitud=promedio["symetrical_components"]["ia2_amplitud"],
                                          ia1_fase=promedio["symetrical_components"]["ia1_fase"],
                                          ia2_fase=promedio["symetrical_components"]["ia2_fase"],
-                                         kw_a=["energia"]["kw_a"],
-                                         kw_b=["energia"]["kw_b"],
-                                         kw_c=["emergoa"]["kw_c"],
-                                         kw_avg=["energia"]["kw_avg"],
-                                         kvar_a=["energia"]["kvar_a"],
-                                         kvar_b=["energia"]["kvar_b"],
-                                         kvar_c=["energia"]["kvar_c"],
-                                         kvar_avg=["energia"]["kvar_avg"],
-                                         kva_a=["energia"]["kva_a"],
-                                         kva_b=["energia"]["kva_b"],
-                                         kva_c=["energia"]["kva_c"],
-                                         kva_avg=["energia"]["kva_avg"],
-                                         pf_a=["energia"]["pf_a"],
-                                         pf_b=["energia"]["pf_b"],
-                                         pf_c=["energia"]["pf_c"],
-                                         pf_avg=["energia"]["pf_avg"],
-                                         torque=["torque"])
+                                         kw_a=promedio["energia"]["kw_a"],
+                                         kw_b=promedio["energia"]["kw_b"],
+                                         kw_c=promedio["energia"]["kw_c"],
+                                         kw_avg=promedio["energia"]["kw_avg"],
+                                         kvar_a=promedio["energia"]["kvar_a"],
+                                         kvar_b=promedio["energia"]["kvar_b"],
+                                         kvar_c=promedio["energia"]["kvar_c"],
+                                         kvar_avg=promedio["energia"]["kvar_avg"],
+                                         kva_a=promedio["energia"]["kva_a"],
+                                         kva_b=promedio["energia"]["kva_b"],
+                                         kva_c=promedio["energia"]["kva_c"],
+                                         kva_avg=promedio["energia"]["kva_avg"],
+                                         pf_a=promedio["energia"]["pf_a"],
+                                         pf_b=promedio["energia"]["pf_b"],
+                                         pf_c=promedio["energia"]["pf_c"],
+                                         pf_avg=promedio["energia"]["pf_avg"],
+                                         torque=promedio["torque"])
+        print(f"objeto average : {obj_average}")
+        print("aqui llego")
+        obj_average.save()
     except TestER.DoesNotExist:
         return Response({'error': f'Test electrical result instance does not exist'},
                         status=status.HTTP_404_NOT_FOUND)
-    obj_average.save()
 
 
 def validate_date_format(date_string):

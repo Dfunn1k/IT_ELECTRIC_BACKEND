@@ -245,7 +245,7 @@ class UploadMeasurementsERView(APIView):
         try:
             promedio = data_avarage(array, electrical_result_fk)
             create_average(promedio, test_electrical_result)
-        except:
+        except Exception as e:
             test_electrical_result.delete()
             return Response({'error': 'Failed to create averages'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
