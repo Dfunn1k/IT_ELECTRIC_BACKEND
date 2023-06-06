@@ -581,91 +581,48 @@ class AverageView(APIView):
                     "unabalance_current": round(promedio.unbalance_current, 2),
                     "frecuence": round(promedio.sideband_freq_hz, 2)
                 },
-                "SymmetricalComponents": [
-                    {
-                        "section_left": [
-                            {
-                                "title": 'Vab',
-                                "values": {
-                                    "amplitud": f"{round(promedio.ab,2)} [V]",
-                                    "fase": f"{round(promedio.vab_fase,2)}°"
-                                }
-                            },
-                            {
-                                "title": 'Vbc',
-                                "values": {
-                                    "amplitud": f"{round(promedio.bc,2)} [V]",
-                                    "fase": f"{round(promedio.vbc_fase,2)}°"
-                                }
-                            },
-                            {
-                                "title": "Vca",
-                                "values": {
-                                    "amplitud": f"{round(promedio.ca,2)} [V]",
-                                    "fase": f"{round(promedio.vca_fase,2)}°"
-                                }
-                            }],
-                        "section_mid": round(promedio.unbalance_voltage, 2),
-                        "section_right": [
-                            {
-                                "title": "VA1",
-                                "values": {
-                                    "amplitud": round(promedio.va1_amplitud, 2),
-                                    "fase": round(promedio.va1_fase, 2)
-                                }
-                            },
-                            {
-                                "title": "VA2",
-                                "values": {
-                                    "amplitud": round(promedio.va2_amplitud, 2),
-                                    "fase": round(promedio.va2_fase, 2)
-                                }
-                            }
-                        ]
+                "SymmetricalComponents": {
+                    "title": {
+                        "Vab",
+                        "Vbc",
+                        "Vca",
+                        "IA",
+                        "IB",
+                        "IC"
                     },
-                    {
-                        "section_left": [
-                            {
-                                "title": "IA",
-                                "values": {
-                                    "amplitud": f"{round(promedio.current_a, 2)} [I]",
-                                    "fase": f"{round(promedio.ia_fase,2)}°"
-                                }
-                            },
-                            {
-                                "title": "IB",
-                                "values": {
-                                    "amplitud": f"{round(promedio.current_b,2)} [I]",
-                                    "fase": f"{round(promedio.ib_fase, 2)}°"
-                                }
-                            },
-                            {
-                                "title": "IC",
-                                "values": {
-                                    "amplitud": f"{round(promedio.current_c,2)} [I]",
-                                    "fase": f"{round(promedio.ic_fase,2)}°"
-                                }
-                            }
-                        ],
-                        "section_mid": round(promedio.unbalance_current, 2),
-                        "section_right": [
-                            {
-                                "title": "IA1",
-                                "values": {
-                                    "amplitud": round(promedio.ia1_amplitud, 2),
-                                    "fase": round(promedio.ia1_fase, 2)
-                                }
-                            },
-                            {
-                                "title": "IA2",
-                                "values": {
-                                    "amplitud": round(promedio.ia2_amplitud, 2),
-                                    "fase": round(promedio.ia2_fase, 2)
-                                }
-                            }
-                        ]
+                    "Amplitud": {
+                        round(promedio.ab, 2),
+                        round(promedio.bc, 2),
+                        round(promedio.ca, 2),
+                        round(promedio.current_a, 2),
+                        round(promedio.current_b, 2),
+                        round(promedio.current_c, 2),
+                    },
+                    "Fase": {
+                        round(promedio.vab_fase, 2),
+                        round(promedio.vbc_fase, 2),
+                        round(promedio.vca_fase, 2),
+                        round(promedio.ia_fase, 2),
+                        round(promedio.ib_fase, 2),
+                        round(promedio.ic_fase, 2),
+                    },
+                    "Desbalance": {
+                        round(promedio.unbalance_voltage, 2),
+                        round(promedio.unbalance_current, 2)
+                    },
+                    "Amplitud_2": {
+                        round(promedio.va1_amplitud, 2),
+                        round(promedio.va2_amplitud, 2),
+                        round(promedio.ia1_amplitud, 2),
+                        round(promedio.ia2_amplitud, 2),
+                    },
+                    "Fase_2": {
+                        round(promedio.va1_fase, 2),
+                        round(promedio.va2_fase, 2),
+                        round(promedio.ia1_fase, 2),
+                        round(promedio.ia2_fase, 2)
                     }
-                ]
+                }
             }
 
             return Response(data, status=status.HTTP_200_OK)
