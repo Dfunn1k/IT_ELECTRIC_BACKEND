@@ -15,6 +15,6 @@ from dotenv import find_dotenv, load_dotenv
 load_dotenv(find_dotenv())
 print(os.getenv("INT_MYSQL_DB"))
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'RestApi.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'RestApi.settings.local.py')
 
 application = get_wsgi_application()

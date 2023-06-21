@@ -16,12 +16,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-g9p3#_a6x85*d)f6eaza@wqw5(bhf6xm+091goidv&7p9@79o+'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
-
 # Application definition
 
 DJANGO_APPS = (
@@ -76,21 +70,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'RestApi.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': getenv("INT_MYSQL_DB"),
-        'USER': getenv("INT_MYSQL_USER"),
-        'PASSWORD': getenv("INT_MYSQL_PASSWORD"),
-        'HOST': getenv("INT_MYSQL_HOST"),
-        'PORT': ''
-    }
-}
 
 
 # Password validation
