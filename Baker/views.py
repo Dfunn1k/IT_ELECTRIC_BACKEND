@@ -582,46 +582,46 @@ class AverageView(APIView):
                     "frecuence": round(promedio.sideband_freq_hz, 2)
                 },
                 "SymmetricalComponents": {
-                    "title": {
+                    "title": [
                         "Vab",
                         "Vbc",
                         "Vca",
                         "IA",
                         "IB",
                         "IC"
-                    },
-                    "Amplitud": {
+                    ],
+                    "Amplitud": [
                         round(promedio.ab, 2),
                         round(promedio.bc, 2),
                         round(promedio.ca, 2),
                         round(promedio.current_a, 2),
                         round(promedio.current_b, 2),
                         round(promedio.current_c, 2),
-                    },
-                    "Fase": {
+                    ],
+                    "Fase": [
                         round(promedio.vab_fase, 2),
                         round(promedio.vbc_fase, 2),
                         round(promedio.vca_fase, 2),
                         round(promedio.ia_fase, 2),
                         round(promedio.ib_fase, 2),
                         round(promedio.ic_fase, 2),
-                    },
-                    "Desbalance": {
+                    ],
+                    "Desbalance": [
                         round(promedio.unbalance_voltage, 2),
                         round(promedio.unbalance_current, 2)
-                    },
-                    "Amplitud_2": {
+                    ],
+                    "Amplitud_2": [
                         round(promedio.va1_amplitud, 2),
                         round(promedio.va2_amplitud, 2),
                         round(promedio.ia1_amplitud, 2),
                         round(promedio.ia2_amplitud, 2),
-                    },
-                    "Fase_2": {
+                    ],
+                    "Fase_2": [
                         round(promedio.va1_fase, 2),
                         round(promedio.va2_fase, 2),
                         round(promedio.ia1_fase, 2),
                         round(promedio.ia2_fase, 2)
-                    }
+                    ]
                 }
             }
 
