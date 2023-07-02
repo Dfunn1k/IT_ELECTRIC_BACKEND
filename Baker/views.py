@@ -153,6 +153,13 @@ class GetMeasurementsTBView(APIView):
                 'vb': list(map(lambda x: round(x, 2), measurements.values_list('vb', flat=True))),
                 'vc': list(map(lambda x: round(x, 2), measurements.values_list('vc', flat=True)))
             }
+            data['avg_ia'] = sum(data['ia']) / len(data['ia'])
+            data['avg_ib'] = sum(data['ib']) / len(data['ib'])
+            data['avg_ic'] = sum(data['ic']) / len(data['ic'])
+            data['avg_va'] = sum(data['va']) / len(data['va'])
+            data['avg_vb'] = sum(data['vb']) / len(data['vb'])
+            data['avg_vc'] = sum(data['vc']) / len(data['vc'])
+
             return Response(data, status=status.HTTP_200_OK)
         except MeasurementTB.DoesNotExist:
             return Response({'error': f'No se encontraron mediciones para el test(pk: {test_tb})'}, status=status.HTTP_404_NOT_FOUND)
