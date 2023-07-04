@@ -143,7 +143,7 @@ class GetMeasurementsTBView(APIView):
     def get(self, request, test_tb):
         try:
             measurements = MeasurementTB.objects.filter(
-                test_transient_boot_fk=test_tb)
+                test_transient_boot_fk=test_tb).order_by('time')
             data = {
                 'time': list(measurements.values_list('time', flat=True)),
                 'ia': list(measurements.values_list('ia', flat=True)),
