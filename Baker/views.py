@@ -145,14 +145,15 @@ class GetMeasurementsTBView(APIView):
             measurements = MeasurementTB.objects.filter(
                 test_transient_boot_fk=test_tb)
             data = {
-                'time': list(map(lambda x: round(x, 2), measurements.values_list('time', flat=True))),
-                'ia': list(map(lambda x: round(x, 2), measurements.values_list('ia', flat=True))),
-                'ib': list(map(lambda x: round(x, 2), measurements.values_list('ib', flat=True))),
-                'ic': list(map(lambda x: round(x, 2), measurements.values_list('ic', flat=True))),
-                'va': list(map(lambda x: round(x, 2), measurements.values_list('va', flat=True))),
-                'vb': list(map(lambda x: round(x, 2), measurements.values_list('vb', flat=True))),
-                'vc': list(map(lambda x: round(x, 2), measurements.values_list('vc', flat=True)))
+                'time': list(measurements.values_list('time', flat=True)),
+                'ia': list(measurements.values_list('ia', flat=True)),
+                'ib': list(measurements.values_list('ib', flat=True)),
+                'ic': list(measurements.values_list('ic', flat=True)),
+                'va': list(measurements.values_list('va', flat=True)),
+                'vb': list(measurements.values_list('vb', flat=True)),
+                'vc': list(measurements.values_list('vc', flat=True))
             }
+
             data['avg_ia'] = sum(data['ia']) / len(data['ia'])
             data['avg_ib'] = sum(data['ib']) / len(data['ib'])
             data['avg_ic'] = sum(data['ic']) / len(data['ic'])
