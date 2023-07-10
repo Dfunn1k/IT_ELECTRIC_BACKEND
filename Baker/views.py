@@ -157,9 +157,13 @@ class GetMeasurementsTBView(APIView):
             data['avg_ia'] = sum(data['ia']) / len(data['ia'])
             data['avg_ib'] = sum(data['ib']) / len(data['ib'])
             data['avg_ic'] = sum(data['ic']) / len(data['ic'])
+            data['avg_i'] = (data['avg_ia'] +
+                             data['avg_ib'] + data['avg_ic']) / 3
             data['avg_va'] = sum(data['va']) / len(data['va'])
             data['avg_vb'] = sum(data['vb']) / len(data['vb'])
             data['avg_vc'] = sum(data['vc']) / len(data['vc'])
+            data['avg_v'] = (data['avg_va'] +
+                             data['avg_vb'] + data['avg_vc']) / 3
 
             return Response(data, status=status.HTTP_200_OK)
         except MeasurementTB.DoesNotExist:
